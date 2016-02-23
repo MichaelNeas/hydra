@@ -7,7 +7,12 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -34,11 +39,13 @@ public class MainActivity extends AppCompatActivity {
 
     ArrayList<BluetoothDevice> pairedDeviceArrayList;
 
-    TextView textInfo, textStatus;
+    Toolbar toolbar;
+    TextView textInfo, textStatus, textPrompt;
+    Button btnBluetooth;
     ListView listViewPairedDevice;
     LinearLayout inputPane;
     EditText inputField;
-    Button btnSend;
+    FloatingActionButton fab;
 
     ArrayAdapter<BluetoothDevice> pairedDeviceAdapter;
     private UUID myUUID;
@@ -53,14 +60,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setTitle(null);
+
         textInfo = (TextView)findViewById(R.id.info);
         textStatus = (TextView)findViewById(R.id.status);
+        textPrompt = (TextView)findViewById(R.id.prompt);
         listViewPairedDevice = (ListView)findViewById(R.id.pairedlist);
+        btnBluetooth = (Button)findViewById(R.id.buttonPair);
+        btnBluetooth.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
+            }});
 
         inputPane = (LinearLayout)findViewById(R.id.inputpane);
         inputField = (EditText)findViewById(R.id.input);
-        btnSend = (Button)findViewById(R.id.send);
-        btnSend.setOnClickListener(new View.OnClickListener(){
+        fab = (FloatingActionButton)findViewById(R.id.fabSend);
+        fab.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View v) {
@@ -97,6 +116,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
 
@@ -130,11 +171,12 @@ public class MainActivity extends AppCompatActivity {
                     BluetoothDevice device =
                             (BluetoothDevice) parent.getItemAtPosition(position);
                     Toast.makeText(MainActivity.this,
+                            "Connected!\n" +
                             "Name: " + device.getName() + "\n"
-                                    + "Address: " + device.getAddress() + "\n"
-                                    + "BondState: " + device.getBondState() + "\n"
-                                    + "BluetoothClass: " + device.getBluetoothClass() + "\n"
-                                    + "Class: " + device.getClass(),
+                                    + "Address: " + device.getAddress(),
+                                    //+ "BondState: " + device.getBondState() + "\n"
+                                    //+ "BluetoothClass: " + device.getBluetoothClass() + "\n"
+                                    //+ "Class: " + device.getClass(),
                             Toast.LENGTH_LONG).show();
 
                     //textStatus.setText("start ThreadConnectBTdevice");
@@ -234,7 +276,11 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         textStatus.setText(msgconnected);
 
+                        textPrompt.setVisibility(View.GONE);
                         listViewPairedDevice.setVisibility(View.GONE);
+                        findViewById(R.id.top_line).setVisibility(View.GONE);
+                        fab.setVisibility(View.VISIBLE);
+                        toolbar.setVisibility(View.VISIBLE);
                         inputPane.setVisibility(View.VISIBLE);
                     }});
 
