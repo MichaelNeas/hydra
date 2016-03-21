@@ -129,11 +129,7 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
 
         // (I just included the on click listener in here to keep it all in one place)
         btnBluetooth = (Button)findViewById(R.id.buttonPair);
-        btnBluetooth.setOnClickListener(this);/*new View.OnClickListener(){
-            @Override public void onClick(View v) {
-                startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));
-            }
-        });*/
+        btnBluetooth.setOnClickListener(this);
 
         // ----- /BT WINDOW SETUP -----
 
@@ -144,12 +140,7 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
 
         actionList = (RadioGroup) findViewById(R.id.actionList);
         // Relay information regarding selected action on click
-        actionList.setOnCheckedChangeListener(this);/*new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                setSelectedAction(checkedId);
-            }
-        });*/
+        actionList.setOnCheckedChangeListener(this);
 
         // TODO imageView in sendActionWindow
 
@@ -180,8 +171,8 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         staticSwitch = (Switch)findViewById(R.id.staticSwitch);
         staticSwitch.setOnCheckedChangeListener(this);
 
+        // Dat fab. Probably going to ditch this
         fab = (FloatingActionButton)findViewById(R.id.fabSend);
-        // send most recently updated SEND_STRING to BT device on click
         fab.setOnClickListener(this);
 
         // ----- /MAIN WINDOW SETUP -----
