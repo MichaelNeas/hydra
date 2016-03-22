@@ -127,7 +127,6 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
 
         listViewPairedDevice = (ListView)findViewById(R.id.pairedlist);
 
-        // (I just included the on click listener in here to keep it all in one place)
         btnBluetooth = (Button)findViewById(R.id.buttonPair);
         btnBluetooth.setOnClickListener(this);
 
