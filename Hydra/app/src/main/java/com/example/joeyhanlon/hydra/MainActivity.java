@@ -36,7 +36,7 @@ import java.util.Set;
 import java.util.UUID;
 
 
-public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener, View.OnClickListener, RadioGroup.OnCheckedChangeListener, CompoundButton.OnCheckedChangeListener {
+public class MainActivity extends AppCompatActivity implements ListView.OnItemClickListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener, RadioGroup.OnCheckedChangeListener, CompoundButton.OnCheckedChangeListener {
 
     // BT stuff
     private static final int REQUEST_ENABLE_BT = 1;
@@ -56,6 +56,9 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     // Listview to display all paired devices
     ListView listViewPairedDevice;
 
+    // Mode manager (getting real descriptive with the comments)
+    ModeManager myModeManager;
+
     // The functional application window. Used to mask it during BT init and such.
     LinearLayout inputPane;
 
@@ -70,12 +73,18 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     // ----- SETTINGS INPUT FIELDS -----
 
     // SELECTED ACTION
+    ListView modesListView;
+    // Planning to replace the radio group with the listview above, which will also have radio
+    //  buttons and all that jazz
     RadioGroup actionList;
     RadioButton grip;
     RadioButton pinch;
     RadioButton click;
     RadioButton point;
     RadioButton hook;
+    Button saveModeButton, newModeButton;
+    // STATIC / DYNAMIC
+    Switch dynSwitch;
     // SPEED
     CardView speedCard;
     SeekBar thumbSpeed;
@@ -91,11 +100,12 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     TextView thumbDepthIndicator;
     TextView indexDepthIndicator;
     TextView outerDepthIndicator;
-    // STATIC
-    Switch staticSwitch;
-
-    // ---------------------------------
-
+    // Threhhold
+    SeekBar actThreshSeekBar;
+    TextView actThreshIndicator;
+    // WriteDelay
+    SeekBar writeDelSeekBar;
+    TextView writeDelIndicator;
     // String array to be sent to the arm, initialized to default values
     String[] SEND_STRING = {"1=D;","2=0.5;","3=5.0;","4=100,100,100;","5=5.0,5.0,5.0;"};
 
@@ -132,10 +142,38 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
 
         // ----- /BT WINDOW SETUP -----
 
+        // ----- BT verification -----
+
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)){
+            Toast.makeText(this,
+                    "FEATURE_BLUETOOTH NOT support",
+                    Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
+        myUUID = UUID.fromString(UUID_STRING_WELL_KNOWN_SPP);
+
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter == null) {
+            Toast.makeText(this,
+                    "Bluetooth is not supported on this hardware platform",
+                    Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
+        String stInfo = bluetoothAdapter.getName() + "\n" +
+                bluetoothAdapter.getAddress();
+        textInfo.setText(stInfo);
+
+        // ----- /BT verification -----
 
         // ----- MAIN WINDOW SETUP -----
         inputPane = (LinearLayout)findViewById(R.id.inputpane);
         inputField = (EditText)findViewById(R.id.input);
+
+        // TODO instantiate modesListView, saveModeButton, newModeButton
 
         actionList = (RadioGroup) findViewById(R.id.actionList);
         // Relay information regarding selected action on click
@@ -167,47 +205,33 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         indexDepth.setOnSeekBarChangeListener(this);
         outerDepth.setOnSeekBarChangeListener(this);
 
-        staticSwitch = (Switch)findViewById(R.id.staticSwitch);
-        staticSwitch.setOnCheckedChangeListener(this);
+        dynSwitch = (Switch)findViewById(R.id.staticSwitch);
 
-        // Dat fab. Probably going to ditch this
-        fab = (FloatingActionButton)findViewById(R.id.fabSend);
+        actThreshSeekBar = (SeekBar) findViewById(R.id.actThreshSeekBar);
+        actThreshSeekBar.setOnSeekBarChangeListener(this);
+        actThreshIndicator = (TextView) findViewById(R.id.actThreshIndicator);
+
+        writeDelSeekBar = (SeekBar) findViewById(R.id.writeDelSeekBar);
+        writeDelSeekBar.setOnSeekBarChangeListener(this);
+        writeDelIndicator = (TextView) findViewById(R.id.writeDelIndicator);
+
+        fab = (FloatingActionButton)findViewById(R.id.fabSave);
         fab.setOnClickListener(this);
 
-        // ----- /MAIN WINDOW SETUP -----
-
-        // ----- BT verification -----
-
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)){
-            Toast.makeText(this,
-                    "FEATURE_BLUETOOTH NOT support",
-                    Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
-
-        myUUID = UUID.fromString(UUID_STRING_WELL_KNOWN_SPP);
-
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter == null) {
-            Toast.makeText(this,
-                    "Bluetooth is not supported on this hardware platform",
-                    Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
-
-        String stInfo = bluetoothAdapter.getName() + "\n" +
-                bluetoothAdapter.getAddress();
-        textInfo.setText(stInfo);
-
-        // ----- /BT verification -----
     }
 
 
     // ----- MAIN WINDOW METHODS -----
 
-    // Gesture selection
+
+    // NEW mode selection
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        setMode((HydraMode) parent.getItemAtPosition((int) id));
+    }
+
+
+    // Gesture selection, planning to get rid of
     @Override
     public void onCheckedChanged(RadioGroup rg, int checkedId) {
         switch (rg.getCheckedRadioButtonId()) {
@@ -226,16 +250,22 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         }
     }
 
-    // Currently this only handles the FAB but it will handle any sort of button in the future
-    //  ... including the (Default) buttons for speed, depth, etc
+    // OnClick method for all buttons
     @Override
     public void onClick(View view)
     {
         switch (view.getId())
         {
-            case (R.id.fabSend):
-                send();
+            case (R.id.fabSave):
+
+                sendArduinoMessage("1=D;2=0.5;3=5.0;4=100,100,100;5=5.0,5.0,5.0;");
+
+                // Save currently selected mode with currently selected settings
+                //saveHydraMode();
                 break;
+
+            // TODO new mode button
+            // myModeManager.addNewBlankMode();
         }
     }
 
@@ -329,6 +359,93 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
 
 
     // ----- /MAIN WINDOW METHODS -----
+
+    // ----- MODE MANAGING METHODS -----
+    // Saves the set parameters for the current mode to its HydraMode class
+    private void saveHydraMode(){
+        HydraMode mode = myModeManager.getCurrentMode();
+
+        // Dynamic or Static
+        mode.setParam(1, dynSwitch.getShowText());
+
+        // Action threshold
+        float param2 = (float) (actThreshSeekBar.getProgress()/100) * (float) (0.75 - 0.05) + (float) 0.05;
+        mode.setParam(2, param2);
+
+        // Write delay
+        float param3 = (float) (writeDelSeekBar.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
+        mode.setParam(3, param3);
+
+        // Grip depth
+        mode.setParam(4, 0, thumbDepth.getProgress());
+        mode.setParam(4, 1, indexDepth.getProgress());
+        mode.setParam(4, 2, outerDepth.getProgress());
+
+        // Servo speed
+        float param5a = (float) (thumbSpeed.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
+        mode.setParam(5, 0, param5a);
+        float param5b = (float) (indexSpeed.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
+        mode.setParam(5, 1, param5b);
+        float param5c = (float) (outerSpeed.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
+        mode.setParam(5, 2, param5c);
+
+        //TODO store myModeManager in phone memory
+
+        //sendArduinoMessage(mode.getModeString());
+    }
+
+    // Sets current mode to mode
+    private void setMode(HydraMode mode){
+        myModeManager.setCurrentMode(mode);
+        // Update parameter UI stuff
+        // Dynamic or Static
+        dynSwitch.setShowText((boolean) mode.getParam(1));
+
+        // TODO implement missing cards
+        //Action threshold
+        int progAT = (int) Math.round( 100 * ( (float) mode.getParam(2) / (0.75 - 0.05)) );
+        actThreshSeekBar.setProgress(progAT);
+
+        // Write delay
+        int progWD = (int) Math.round( 100 * ( (float) mode.getParam(3) / (10.0 - 1.0)) );
+        writeDelSeekBar.setProgress(progWD);
+
+        // Grip depth
+        int[] progsGD = (int[]) mode.getParam(4);
+        thumbDepth.setProgress(progsGD[0]);
+        indexDepth.setProgress(progsGD[1]);
+        outerDepth.setProgress(progsGD[2]);
+
+        // Servo speed
+        float[] progsSS = (float[]) mode.getParam(5);
+        int progSS = (int) Math.round(100 * ((float) progsSS[0] / (10.0 - 1.0)));
+        thumbSpeed.setProgress(progSS);
+        progSS = (int) Math.round(100 * ((float) progsSS[1] / (10.0 - 1.0)));
+        indexSpeed.setProgress(progSS);
+        progSS = (int) Math.round(100 * ((float) progsSS[2] / (10.0 - 1.0)));
+        outerSpeed.setProgress(progSS);
+
+        // Send Arduino the new mode
+        sendArduinoMessage(mode.getModeString());
+    }
+    // ----- /MODE MANAGING METHODS -----
+
+
+    // ----- BLUETOOTH ACCESS METHODS -----
+    // Send the given string to Arduino via Bluetooth
+    public void sendArduinoMessage(String message){
+        if(myThreadConnected!=null) {
+            byte[] bytesToSend = message.getBytes();
+            myThreadConnected.write(bytesToSend);
+        }
+    }
+
+    // Return string sent by Arduino, used for calibration
+    public String readArduinoMessage(){
+        //while (myThreadConnected == null){} // Wait for bluetooth to be available
+        return myThreadConnected.read();
+    }
+    // ----- /BLUETOOTH ACCESS METHODS -----
 
 
     // ----- OPTIONS MENU -----
@@ -600,6 +717,18 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+        }
+
+        public String read() {
+            String message= "";
+            byte[] buffer = new byte[10];
+            try {
+                connectedInputStream.read(buffer);
+                message = buffer.toString();
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
+            return message;
         }
 
         public void cancel() {
