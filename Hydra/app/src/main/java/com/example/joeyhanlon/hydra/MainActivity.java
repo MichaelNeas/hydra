@@ -1,11 +1,8 @@
 package com.example.joeyhanlon.hydra;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -15,7 +12,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -31,30 +27,15 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.UUID;
 
 
 public class MainActivity extends AppCompatActivity implements ListView.OnItemClickListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener, RadioGroup.OnCheckedChangeListener, CompoundButton.OnCheckedChangeListener {
 
-    // BT stuff
-    private static final int REQUEST_ENABLE_BT = 1;
-    BluetoothAdapter bluetoothAdapter;
-    ArrayList<BluetoothDevice> pairedDeviceArrayList;
-    ArrayList<String> pairedDeviceArrayAdapter;
+    // Child activity codes
+    private static final int BT_CONNECT = 3;
 
     // Toolbar
     Toolbar toolbar;
-
-    // BT debugging text views
-    TextView textInfo, textStatus, textPrompt;
-
-    // Button to open system bluetooth menu
-    Button btnBluetooth;
-
-    // Listview to display all paired devices
-    ListView listViewPairedDevice;
 
     // Mode manager (getting real descriptive with the comments)
     ModeManager myModeManager;
@@ -70,8 +51,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     TextView connectedDeviceName;
     TextView connectedDeviceAddress;
 
-    // ----- SETTINGS INPUT FIELDS -----
-
     // SELECTED ACTION
     ListView modesListView;
     // Planning to replace the radio group with the listview above, which will also have radio
@@ -83,45 +62,47 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     RadioButton point;
     RadioButton hook;
     Button saveModeButton, newModeButton;
+
+    // ----- Hydra Parameter UI Elements -----
     // STATIC / DYNAMIC
     Switch dynSwitch;
-    // SPEED
+    // SERVO SPEED
     CardView speedCard;
-    SeekBar thumbSpeed;
-    SeekBar indexSpeed;
-    SeekBar outerSpeed;
-    TextView thumbSpeedIndicator;
-    TextView indexSpeedIndicator;
-    TextView outerSpeedIndicator;
-    // DEPTH
-    SeekBar thumbDepth;
-    SeekBar indexDepth;
-    SeekBar outerDepth;
-    TextView thumbDepthIndicator;
-    TextView indexDepthIndicator;
-    TextView outerDepthIndicator;
-    // Threhhold
+    SeekBar servoSpeedSeekBar0;
+    SeekBar servoSpeedSeekBar1;
+    SeekBar servoSpeedSeekBar2;
+    TextView servoSpeedIndicator0;
+    TextView servoSpeedIndicator1;
+    TextView servoSpeedIndicator2;
+    // GRIP DEPTH
+    SeekBar gripDepthSeekBar0;
+    SeekBar gripDepthSeekBar1;
+    SeekBar gripDepthSeekBar2;
+    TextView gripDepthIndicator0;
+    TextView gripDepthIndicator1;
+    TextView gripDepthIndicator2;
+    // ACTION THRESHOLD
     SeekBar actThreshSeekBar;
     TextView actThreshIndicator;
-    // WriteDelay
+    // WRITE DELAY
     SeekBar writeDelSeekBar;
     TextView writeDelIndicator;
+    // ----- /Hydra Parameter UI Elements -----
+
     // String array to be sent to the arm, initialized to default values
     String[] SEND_STRING = {"1=D;","2=0.5;","3=5.0;","4=100,100,100;","5=5.0,5.0,5.0;"};
 
-
-    // Adapter to display more info in the paired device listview
-    ArrayAdapter<String> pairedDeviceAdapter;
-
     // BT thread variables
-    private UUID myUUID;
-    private final String UUID_STRING_WELL_KNOWN_SPP = "00001101-0000-1000-8000-00805F9B34FB";
-    ThreadConnectBTdevice myThreadConnectBTdevice;
-    ThreadConnected myThreadConnected;
+    TextView textStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Start bluetooth connection activity on launch
+        Intent btIntent = new Intent(this, BluetoothSetupActivity.class);
+        startActivityForResult(btIntent, BT_CONNECT);
+
         setContentView(R.layout.activity_main);
 
         // Initialize toolbar
@@ -131,46 +112,13 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         getSupportActionBar().setTitle(null);
 
         // ----- BT WINDOW SETUP -----
-        textInfo = (TextView)findViewById(R.id.info);
         textStatus = (TextView)findViewById(R.id.status);
-        textPrompt = (TextView)findViewById(R.id.prompt);
-
-        listViewPairedDevice = (ListView)findViewById(R.id.pairedlist);
-
-        btnBluetooth = (Button)findViewById(R.id.buttonPair);
-        btnBluetooth.setOnClickListener(this);
 
         // ----- /BT WINDOW SETUP -----
 
-        // ----- BT verification -----
-
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)){
-            Toast.makeText(this,
-                    "FEATURE_BLUETOOTH NOT support",
-                    Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
-
-        myUUID = UUID.fromString(UUID_STRING_WELL_KNOWN_SPP);
-
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter == null) {
-            Toast.makeText(this,
-                    "Bluetooth is not supported on this hardware platform",
-                    Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
-
-        String stInfo = bluetoothAdapter.getName() + "\n" +
-                bluetoothAdapter.getAddress();
-        textInfo.setText(stInfo);
-
-        // ----- /BT verification -----
 
         // ----- MAIN WINDOW SETUP -----
-        inputPane = (LinearLayout)findViewById(R.id.inputpane);
+        inputPane = (LinearLayout)findViewById(R.id.inputPane);
         inputField = (EditText)findViewById(R.id.input);
 
         // TODO instantiate modesListView, saveModeButton, newModeButton
@@ -185,27 +133,27 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         connectedDeviceAddress = (TextView)findViewById(R.id.connectedDeviceAddress);
 
         speedCard = (CardView)findViewById(R.id.speedCard);
-        thumbSpeed = (SeekBar)findViewById(R.id.thumbSpeed);
-        indexSpeed = (SeekBar)findViewById(R.id.indexSpeed);
-        outerSpeed = (SeekBar)findViewById(R.id.outerSpeed);
-        thumbSpeedIndicator = (TextView)findViewById(R.id.thumbSpeedIndicator);
-        indexSpeedIndicator = (TextView)findViewById(R.id.indexSpeedIndicator);
-        outerSpeedIndicator = (TextView)findViewById(R.id.outerSpeedIndicator);
-        thumbSpeed.setOnSeekBarChangeListener(this);
-        indexSpeed.setOnSeekBarChangeListener(this);
-        outerSpeed.setOnSeekBarChangeListener(this);
+        servoSpeedSeekBar0 = (SeekBar)findViewById(R.id.servoSpeedSeekBar0);
+        servoSpeedSeekBar1 = (SeekBar)findViewById(R.id.servoSpeedSeekBar1);
+        servoSpeedSeekBar2 = (SeekBar)findViewById(R.id.servoSpeedSeekBar2);
+        servoSpeedIndicator0 = (TextView)findViewById(R.id.servoSpeedIndicator0);
+        servoSpeedIndicator1 = (TextView)findViewById(R.id.servoSpeedIndicator1);
+        servoSpeedIndicator2 = (TextView)findViewById(R.id.servoSpeedIndicator2);
+        servoSpeedSeekBar0.setOnSeekBarChangeListener(this);
+        servoSpeedSeekBar1.setOnSeekBarChangeListener(this);
+        servoSpeedSeekBar2.setOnSeekBarChangeListener(this);
 
-        thumbDepth = (SeekBar)findViewById(R.id.thumbDepth);
-        indexDepth = (SeekBar)findViewById(R.id.indexDepth);
-        outerDepth = (SeekBar)findViewById(R.id.outerDepth);
-        thumbDepthIndicator = (TextView)findViewById(R.id.thumbDepthIndicator);
-        indexDepthIndicator = (TextView)findViewById(R.id.indexDepthIndicator);
-        outerDepthIndicator = (TextView)findViewById(R.id.outerDepthIndicator);
-        thumbDepth.setOnSeekBarChangeListener(this);
-        indexDepth.setOnSeekBarChangeListener(this);
-        outerDepth.setOnSeekBarChangeListener(this);
+        gripDepthSeekBar0 = (SeekBar)findViewById(R.id.gripDepthSeekBar0);
+        gripDepthSeekBar1 = (SeekBar)findViewById(R.id.gripDepthSeekBar1);
+        gripDepthSeekBar2 = (SeekBar)findViewById(R.id.gripDepthSeekBar2);
+        gripDepthIndicator0 = (TextView)findViewById(R.id.gripDepthIndicator0);
+        gripDepthIndicator1 = (TextView)findViewById(R.id.gripDepthIndicator1);
+        gripDepthIndicator2 = (TextView)findViewById(R.id.gripDepthIndicator2);
+        gripDepthSeekBar0.setOnSeekBarChangeListener(this);
+        gripDepthSeekBar1.setOnSeekBarChangeListener(this);
+        gripDepthSeekBar2.setOnSeekBarChangeListener(this);
 
-        dynSwitch = (Switch)findViewById(R.id.staticSwitch);
+        dynSwitch = (Switch)findViewById(R.id.dynSwitch);
 
         actThreshSeekBar = (SeekBar) findViewById(R.id.actThreshSeekBar);
         actThreshSeekBar.setOnSeekBarChangeListener(this);
@@ -218,6 +166,12 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         fab = (FloatingActionButton)findViewById(R.id.fabSave);
         fab.setOnClickListener(this);
 
+        // Create ModeManager to store list of modes
+        myModeManager = new ModeManager();
+
+        // TODO add all default modes to list
+        myModeManager.addNewMode("Default Grip", true, 0.5f, 5.0f, 100, 100, 100, 5.0f, 5.0f, 5.0f);
+        setMode(myModeManager.getCurrentMode());
     }
 
 
@@ -258,10 +212,10 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         {
             case (R.id.fabSave):
 
-                sendArduinoMessage("1=D;2=0.5;3=5.0;4=100,100,100;5=5.0,5.0,5.0;");
+                //sendArduinoMessage("1=D;2=0.5;3=5.0;4=100,100,100;5=5.0,5.0,5.0;");
 
                 // Save currently selected mode with currently selected settings
-                //saveHydraMode();
+                saveHydraMode();
                 break;
 
             // TODO new mode button
@@ -272,36 +226,89 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     // Seek bar settings
     @Override
     public void onProgressChanged (SeekBar seekBar,int progressValue, boolean b){
-        int progress = 0;
-        progress = progressValue;
-        int speedVal = progress / 10;
-        String indicatorString = formatIndicatorField(speedVal);
 
-        switch (seekBar.getId()) {
-            case (R.id.thumbSpeed):
-                thumbSpeedIndicator.setText(indicatorString);
-                break;
-            case (R.id.indexSpeed):
-                indexSpeedIndicator.setText(indicatorString);
-                break;
-            case (R.id.outerSpeed):
-                outerSpeedIndicator.setText(indicatorString);
-                break;
-            case (R.id.thumbDepth):
-                thumbDepthIndicator.setText(indicatorString);
-                break;
-            case (R.id.indexDepth):
-                indexDepthIndicator.setText(indicatorString);
-                break;
-            case (R.id.outerDepth):
-                outerDepthIndicator.setText(indicatorString);
-                break;
+        String message = "";        // Message to build for Arduino
+
+        // Action threshold adjusted
+        if (seekBar == actThreshSeekBar){
+
+            // Convert progress bar value
+            float param2 = (float) (actThreshSeekBar.getProgress()/100) * (float) (0.75 - 0.05) + (float) 0.05;
+            // String of float value
+            String param2Str = Float.toString(param2);
+
+            message = "2=" + param2Str + ";";
+            actThreshIndicator.setText(param2Str);
         }
 
-        // Need to outsource this shit \/
-        SEND_STRING[4]= "5=" + Integer.toString(speedVal) +".0," + Integer.toString(speedVal) + ".0," + Integer.toString(speedVal) + ".0;";
-        updateSendString();
-        send();
+        // Write delay adjusted
+        else if (seekBar == writeDelSeekBar) {
+
+            // Convert progress bar value
+            float param3 = (float) (writeDelSeekBar.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
+            // String of float value
+            String param3Str = Float.toString(param3);
+
+            message = "3=" + param3Str + ";";
+            writeDelIndicator.setText(param3Str);
+        }
+
+        // A grip depth adjusted
+        else if (seekBar == gripDepthSeekBar0 || seekBar == gripDepthSeekBar1 || seekBar == gripDepthSeekBar2){
+
+            // Convert each depth value to string
+            String depthProg0 = Integer.toString(gripDepthSeekBar0.getProgress());
+            String depthProg1 = Integer.toString(gripDepthSeekBar1.getProgress());
+            String depthProg2 = Integer.toString(gripDepthSeekBar2.getProgress());
+
+            // Message includes each Servo's depth value
+            message = "4=" + depthProg0 + "," + depthProg1 + "," + depthProg2 + ";";
+
+            // Only need to update changed depth's indicator value
+            switch (seekBar.getId()){
+                case (R.id.gripDepthSeekBar0):
+                    gripDepthIndicator0.setText(depthProg0);
+                    break;
+                case (R.id.gripDepthSeekBar1):
+                    gripDepthIndicator1.setText(depthProg1);
+                    break;
+                case (R.id.gripDepthSeekBar2):
+                    gripDepthIndicator2.setText(depthProg2);
+                    break;
+            }
+        }
+
+        // A servo speed adjusted
+        else if (seekBar == servoSpeedSeekBar0 || seekBar == servoSpeedSeekBar1 || seekBar == servoSpeedSeekBar2) {
+
+            // Convert progress bar values
+            float param5a = (float) (servoSpeedSeekBar0.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
+            float param5b = (float) (servoSpeedSeekBar1.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
+            float param5c = (float) (servoSpeedSeekBar2.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
+
+            // Convert each speed value to string
+            String param5aStr = Float.toString(param5a);
+            String param5bStr = Float.toString(param5b);
+            String param5cStr = Float.toString(param5c);
+
+            // Message includes each Servo's speed value
+            message = "5=" + param5aStr + "," + param5bStr + "," + param5cStr + ";";
+
+            // Only need to update changed speed's indicator value
+            switch (seekBar.getId()){
+                case (R.id.servoSpeedSeekBar0):
+                    servoSpeedIndicator0.setText(param5aStr);
+                    break;
+                case (R.id.servoSpeedSeekBar1):
+                    servoSpeedIndicator1.setText(param5bStr);
+                    break;
+                case (R.id.servoSpeedSeekBar2):
+                    servoSpeedIndicator2.setText(param5cStr);
+                    break;
+            }
+        }
+
+        sendArduinoMessage(message);  // Send built message to bluetooth
 
     }
 
@@ -310,27 +317,32 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     @Override
     public void onStopTrackingTouch (SeekBar seekBar){}
 
+    /*
     public String formatIndicatorField(int speedVal) {
         if (speedVal == 10){return "10";}
         else {return "0" + Integer.toString(speedVal);}
     }
+    */
 
-    // Switch for static option
+    // Switch for dynamic option
     @Override
     public void onCheckedChanged(CompoundButton sw, boolean isChecked) {
         if (isChecked) {
-            disableSpeed();
-            SEND_STRING[0] = "1=S;";
+            sendArduinoMessage("1=D;");
+            //disableSpeed();
+            //SEND_STRING[0] = "1=S;";
         }
         else {
-            enableSpeed();
-            SEND_STRING[0] = "1=D;";
+            sendArduinoMessage("1=S;");
+            //enableSpeed();
+            //SEND_STRING[0] = "1=D;";
         }
 
-        updateSendString();
-        send();
+        //updateSendString();
+        //send();
     }
 
+    /*
     public void enableSpeed() {
         speedCard.setVisibility(View.VISIBLE);
     }
@@ -356,6 +368,8 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
             inputField.setText("");
         }
     }
+    */
+
 
 
     // ----- /MAIN WINDOW METHODS -----
@@ -377,24 +391,24 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         mode.setParam(3, param3);
 
         // Grip depth
-        mode.setParam(4, 0, thumbDepth.getProgress());
-        mode.setParam(4, 1, indexDepth.getProgress());
-        mode.setParam(4, 2, outerDepth.getProgress());
+        mode.setParam(4, 0, gripDepthSeekBar0.getProgress());
+        mode.setParam(4, 1, gripDepthSeekBar1.getProgress());
+        mode.setParam(4, 2, gripDepthSeekBar2.getProgress());
 
         // Servo speed
-        float param5a = (float) (thumbSpeed.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
+        float param5a = (float) (servoSpeedSeekBar0.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
         mode.setParam(5, 0, param5a);
-        float param5b = (float) (indexSpeed.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
+        float param5b = (float) (servoSpeedSeekBar1.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
         mode.setParam(5, 1, param5b);
-        float param5c = (float) (outerSpeed.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
+        float param5c = (float) (servoSpeedSeekBar2.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
         mode.setParam(5, 2, param5c);
 
         //TODO store myModeManager in phone memory
 
-        //sendArduinoMessage(mode.getModeString());
+        sendArduinoMessage(mode.getModeString());
     }
 
-    // Sets current mode to mode
+    // Sets current mode to mode (updates UI, sends message)
     private void setMode(HydraMode mode){
         myModeManager.setCurrentMode(mode);
         // Update parameter UI stuff
@@ -412,18 +426,18 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
         // Grip depth
         int[] progsGD = (int[]) mode.getParam(4);
-        thumbDepth.setProgress(progsGD[0]);
-        indexDepth.setProgress(progsGD[1]);
-        outerDepth.setProgress(progsGD[2]);
+        gripDepthSeekBar0.setProgress(progsGD[0]);
+        gripDepthSeekBar1.setProgress(progsGD[1]);
+        gripDepthSeekBar2.setProgress(progsGD[2]);
 
         // Servo speed
         float[] progsSS = (float[]) mode.getParam(5);
         int progSS = (int) Math.round(100 * ((float) progsSS[0] / (10.0 - 1.0)));
-        thumbSpeed.setProgress(progSS);
+        servoSpeedSeekBar0.setProgress(progSS);
         progSS = (int) Math.round(100 * ((float) progsSS[1] / (10.0 - 1.0)));
-        indexSpeed.setProgress(progSS);
+        servoSpeedSeekBar1.setProgress(progSS);
         progSS = (int) Math.round(100 * ((float) progsSS[2] / (10.0 - 1.0)));
-        outerSpeed.setProgress(progSS);
+        servoSpeedSeekBar2.setProgress(progSS);
 
         // Send Arduino the new mode
         sendArduinoMessage(mode.getModeString());
@@ -431,21 +445,19 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     // ----- /MODE MANAGING METHODS -----
 
 
-    // ----- BLUETOOTH ACCESS METHODS -----
+    // ----- BLUETOOTH COMM METHODS -----
     // Send the given string to Arduino via Bluetooth
     public void sendArduinoMessage(String message){
-        if(myThreadConnected!=null) {
-            byte[] bytesToSend = message.getBytes();
-            myThreadConnected.write(bytesToSend);
-        }
+        // For debugging sent messages
+        inputField.setText(message);
+        HydraSocket.write(message);
     }
 
     // Return string sent by Arduino, used for calibration
     public String readArduinoMessage(){
-        //while (myThreadConnected == null){} // Wait for bluetooth to be available
-        return myThreadConnected.read();
+        return HydraSocket.read();
     }
-    // ----- /BLUETOOTH ACCESS METHODS -----
+    // ----- /BLUETOOTH COMM METHODS -----
 
 
     // ----- OPTIONS MENU -----
@@ -476,271 +488,49 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     // ----- /OPTIONS MENU -----
 
 
-    // ----- BLUETOOTH CONNECTION METHODS -----
     @Override
     protected void onStart() {
         super.onStart();
-
-        //Turn ON BlueTooth if it is OFF
-        if (!bluetoothAdapter.isEnabled()) {
-            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-        }
-
-        setup();
-    }
-
-    private void setup() {
-        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
-        if (pairedDevices.size() > 0) {
-            pairedDeviceArrayList = new ArrayList<BluetoothDevice>();
-            pairedDeviceArrayAdapter = new ArrayList<String>();
-
-            for (BluetoothDevice device : pairedDevices) {
-                pairedDeviceArrayList.add(device);
-                pairedDeviceArrayAdapter.add(device.getName() + "\n  " + device.getAddress());
-            }
-
-            pairedDeviceAdapter = new ArrayAdapter<String>(this,
-                    android.R.layout.simple_list_item_1, pairedDeviceArrayAdapter);
-            listViewPairedDevice.setAdapter(pairedDeviceAdapter);
-
-            listViewPairedDevice.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view,
-                                        int position, long id) {
-                    BluetoothDevice device =
-                            (BluetoothDevice) pairedDeviceArrayList.get(position);
-                    /*Toast.makeText(MainActivity.this,
-                            "Connecting...\n" +
-                            "Name: " + device.getName() + "\n"
-                                    + "Address: " + device.getAddress(),
-                                    //+ "BondState: " + device.getBondState() + "\n"
-                                    //+ "BluetoothClass: " + device.getBluetoothClass() + "\n"
-                                    //+ "Class: " + device.getClass(),
-                            Toast.LENGTH_LONG).show();
-                    */
-                    Toast.makeText(MainActivity.this,
-                            "Attempting to make connection...",
-                            Toast.LENGTH_LONG).show();
-                    //textStatus.setText("start ThreadConnectBTdevice");
-                    myThreadConnectBTdevice = new ThreadConnectBTdevice(device);
-                    myThreadConnectBTdevice.start();
-                }
-            });
-        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        if(myThreadConnectBTdevice!=null){
-            myThreadConnectBTdevice.cancel();
-        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode==REQUEST_ENABLE_BT){
-            if(resultCode == Activity.RESULT_OK){
-                setup();
-            }else{
-                Toast.makeText(this,
-                        "BlueTooth NOT enabled",
-                        Toast.LENGTH_SHORT).show();
-                finish();
+
+        // Bluetooth connection activity has completed
+        if (requestCode == BT_CONNECT){
+
+            String name = HydraSocket.getDeviceName();
+            String address = HydraSocket.getDeviceAddress();
+
+            // There is a bluetooth connection
+            if (resultCode == RESULT_OK){
+
+                // Show connected device
+
+                Toast.makeText(MainActivity.this,
+                        "Talking to\n" +
+                                "Name: " + name + "\n"
+                                + "Address: " + address,
+                        Toast.LENGTH_LONG).show();
+
+                connectedDeviceName.setText(name);
+                connectedDeviceAddress.setText(address);
+
             }
-        }
-    }
-
-
-    private void startThreadConnected(BluetoothSocket socket){
-
-        myThreadConnected = new ThreadConnected(socket);
-        myThreadConnected.start();
-    }
-
-
-    // The bluetooth thread used to maintain a connection
-    private class ThreadConnectBTdevice extends Thread {
-
-        private BluetoothSocket bluetoothSocket = null;
-        private final BluetoothDevice bluetoothDevice;
-
-
-        private ThreadConnectBTdevice(BluetoothDevice device) {
-            bluetoothDevice = device;
-
-            try {
-                bluetoothSocket = device.createRfcommSocketToServiceRecord(myUUID);
-                textStatus.setText("Creating socket...");
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            // No bluetooth device
+            else {
+                Toast.makeText(MainActivity.this,
+                        "No device connected.",
+                        Toast.LENGTH_LONG).show();
+                connectedDeviceName.setText("Not connected.");
+                connectedDeviceAddress.setText(null);
             }
-        }
-
-        @Override
-        public void run() {
-            boolean success = false;
-            try {
-                bluetoothSocket.connect();
-                success = true;
-            } catch (IOException e) {
-                e.printStackTrace();
-
-                final String eMessage = e.getMessage();
-                runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        textStatus.setText("Error during connection attempt: \n" + eMessage);
-                    }
-                });
-
-                try {
-                    bluetoothSocket.close();
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                }
-            }
-
-            if(success){
-                //connection successful
-                final String msgconnected = "Connected to:\n" + bluetoothDevice;
-
-                runOnUiThread(new Runnable(){
-
-                    @Override
-                    public void run() {
-                        textStatus.setText(msgconnected);
-
-                        textPrompt.setVisibility(View.GONE);
-                        listViewPairedDevice.setVisibility(View.GONE);
-                        findViewById(R.id.top_line).setVisibility(View.GONE);
-                        fab.setVisibility(View.VISIBLE);
-                        toolbar.setVisibility(View.VISIBLE);
-                        inputPane.setVisibility(View.VISIBLE);
-
-                        connectedDeviceName.setText(bluetoothDevice.getName());
-                        connectedDeviceAddress.setText(bluetoothDevice.getAddress());
-                    }});
-
-                startThreadConnected(bluetoothSocket);
-            }else{
-                //fail
-            }
-        }
-
-        public void cancel() {
-
-            Toast.makeText(getApplicationContext(),
-                    "Socket closed",
-                    Toast.LENGTH_LONG).show();
-
-            try {
-                bluetoothSocket.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
         }
 
     }
-
-    private class ThreadConnected extends Thread {
-        private final BluetoothSocket connectedBluetoothSocket;
-        private final InputStream connectedInputStream;
-        private final OutputStream connectedOutputStream;
-
-        public ThreadConnected(BluetoothSocket socket) {
-            connectedBluetoothSocket = socket;
-            InputStream in = null;
-            OutputStream out = null;
-
-            try {
-                in = socket.getInputStream();
-                out = socket.getOutputStream();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-            connectedInputStream = in;
-            connectedOutputStream = out;
-        }
-
-        @Override
-        public void run() {
-            byte[] buffer = new byte[1024];
-            int bytes;
-
-            while (true) {
-                try {
-                    bytes = connectedInputStream.read(buffer);
-                    String strReceived = new String(buffer, 0, bytes);
-                    final String msgReceived = String.valueOf(bytes) +
-                            " bytes received:\n"
-                            + strReceived;
-
-                    runOnUiThread(new Runnable(){
-
-                        @Override
-                        public void run() {
-                            textStatus.setText(msgReceived);
-                        }});
-
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-
-                    final String msgConnectionLost = "Connection lost:\n"
-                            + e.getMessage();
-                    runOnUiThread(new Runnable(){
-
-                        @Override
-                        public void run() {
-                            textStatus.setText(msgConnectionLost);
-                        }});
-                }
-            }
-        }
-
-        public void write(byte[] buffer) {
-            try {
-                connectedOutputStream.write(buffer);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
-        public String read() {
-            String message= "";
-            byte[] buffer = new byte[10];
-            try {
-                connectedInputStream.read(buffer);
-                message = buffer.toString();
-            } catch(IOException e) {
-                e.printStackTrace();
-            }
-            return message;
-        }
-
-        public void cancel() {
-            try {
-                connectedBluetoothSocket.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-    }
-
-    // ----- /BLUETOOTH CONNECTION METHODS -----
-
 }

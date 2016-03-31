@@ -10,7 +10,8 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:orientation="vertical"
-        tools:context=".MainActivity">
+        tools:context=".MainActivity"
+        android:id="@+id/inputPane">
 
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
@@ -24,705 +25,639 @@
         </android.support.design.widget.AppBarLayout>
 
 
-        <TextView
-            android:id="@+id/info"
+        <RelativeLayout
+            android:layout_height="0dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold|italic"
-            android:visibility="gone" />
+            android:layout_weight="0.68"
+            android:paddingBottom="2dp"
+            android:clipToPadding="false">
 
-        <TextView
-            android:id="@+id/status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:background="#FFFFFF"
+                android:elevation="1dp">
 
-        <android.support.design.widget.AppBarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <RelativeLayout
-                android:id="@+id/top_line"
-                android:layout_width="fill_parent"
-                android:layout_height="75dp">
-
-                <TextView
-                    android:id="@+id/prompt"
-                    android:layout_width="wrap_content"
+                <RelativeLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="15dp"
-                    android:text="Select a device:"
-                    android:textColor="#FFFFFF"
-                    android:textSize="20sp"
-                    android:textStyle="italic" />
+                    android:layout_weight="0.9">
 
-                <Button
-                    android:id="@+id/buttonPair"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="@android:color/transparent"
-                    android:clickable="true"
-                    android:drawableRight="@drawable/ic_bluetooth"
-                    android:padding="20dp"
-                    android:text="Pair"
-                    android:textColor="#FFFFFF" />
-
-            </RelativeLayout>
-
-        </android.support.design.widget.AppBarLayout>
-
-        <ListView
-            android:id="@+id/pairedlist"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="10dp" />
-
-        <LinearLayout
-            android:id="@+id/inputpane"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/colorBackground"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <RelativeLayout
-                android:layout_height="0dp"
-                android:layout_width="wrap_content"
-                android:layout_weight="1.2"
-                android:paddingBottom="2dp"
-                android:clipToPadding="false">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:background="#FFFFFF"
-                    android:elevation="1dp">
-
-                    <RelativeLayout
-                        android:layout_width="0dp"
+                    <TextView
+                        android:id="@+id/actionTitle"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0.9">
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="10dp"
+                        android:text="Action"
+                        android:textColor="@color/colorPrimaryText"
+                        android:textSize="20sp" />
 
-                        <TextView
-                            android:id="@+id/actionTitle"
+                    <RadioGroup
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:id="@+id/actionList"
+                        android:checkedButton="@+id/selectedAction"
+                        android:layout_centerHorizontal="true"
+                        android:layout_below="@id/actionTitle"
+                        android:layout_marginBottom="10dp"
+                        android:visibility="gone">
+
+                        <RadioButton
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginTop="10dp"
-                            android:text="Action"
-                            android:textColor="@color/colorPrimaryText"
-                            android:textSize="20sp" />
-
-                        <RadioGroup
+                            android:id="@+id/grip"
+                            android:paddingLeft="30dp"
+                            android:text="Grip"
+                            android:layout_weight="1"/>
+                        <RadioButton
                             android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:id="@+id/actionList"
-                            android:checkedButton="@+id/selectedAction"
-                            android:layout_centerHorizontal="true"
-                            android:layout_below="@id/actionTitle"
-                            android:layout_marginBottom="10dp"
-                            android:visibility="gone">
+                            android:layout_height="wrap_content"
+                            android:id="@+id/pinch"
+                            android:paddingLeft="30dp"
+                            android:text="Pinch"
+                            android:layout_weight="1"/>
+                        <RadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/click"
+                            android:paddingLeft="30dp"
+                            android:text="Click"
+                            android:layout_weight="1"/>
+                        <RadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/point"
+                            android:paddingLeft="30dp"
+                            android:text="Point"
+                            android:layout_weight="1"/>
+                        <RadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/hook"
+                            android:paddingLeft="30dp"
+                            android:text="Hook"
+                            android:layout_weight="1"/>
 
-                            <RadioButton
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:id="@+id/grip"
-                                android:paddingLeft="30dp"
-                                android:text="Grip"
-                                android:layout_weight="1"/>
-                            <RadioButton
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:id="@+id/pinch"
-                                android:paddingLeft="30dp"
-                                android:text="Pinch"
-                                android:layout_weight="1"/>
-                            <RadioButton
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:id="@+id/click"
-                                android:paddingLeft="30dp"
-                                android:text="Click"
-                                android:layout_weight="1"/>
-                            <RadioButton
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:id="@+id/point"
-                                android:paddingLeft="30dp"
-                                android:text="Point"
-                                android:layout_weight="1"/>
-                            <RadioButton
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:id="@+id/hook"
-                                android:paddingLeft="30dp"
-                                android:text="Hook"
-                                android:layout_weight="1"/>
+                    </RadioGroup>
+                </RelativeLayout>
 
-                        </RadioGroup>
-                    </RelativeLayout>
+                <View
+                    android:id="@+id/innerLine"
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#cfcfcf" />
 
-                    <View
-                        android:id="@+id/innerLine"
-                        android:layout_width="1dp"
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.1">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="#cfcfcf" />
+                        android:orientation="vertical"
+                        android:paddingTop="15dp"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp">
 
-                    <RelativeLayout
-                        android:layout_width="0dp"
+                        <RelativeLayout
+                            android:id="@+id/sendActionWindow"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:background="@drawable/gesture_window_bkrd"
+                            android:layout_weight="1.6"
+                            android:gravity="center">
+
+
+
+                        </RelativeLayout>
+
+                        <EditText
+                            android:id="@+id/input"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignEnd="@id/actionTitle" />
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="0.4">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical"
+                                android:layout_marginLeft="5dp"
+                                android:layout_centerVertical="true">
+
+                                <TextView
+                                    android:id="@+id/connectedDeviceName"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="[SelectedDev]"
+                                    android:textColor="@color/colorPrimaryText"
+                                    android:textSize="15sp" />
+
+                                <TextView
+                                    android:id="@+id/connectedDeviceAddress"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginLeft="10dp"
+                                    android:text="MA:CA:DD:RE:SS"
+                                    android:textColor="@color/colorSecondaryText"
+                                    android:textSize="15sp"
+                                    android:paddingTop="5dp"/>
+
+                            </LinearLayout>
+
+                        </RelativeLayout>
+
+                    </LinearLayout>
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_height="0dp"
+            android:layout_width="wrap_content"
+            android:layout_weight="0.8">
+
+            <ScrollView
+                android:layout_marginTop="-3dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:id="@+id/gestureSettings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="5dp">
+
+                    <android.support.v7.widget.CardView
+                        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                        android:id="@+id/dynCard"
+                        android:layout_gravity="center"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1.1">
+                        card_view:cardCornerRadius="2dp"
+                        card_view:cardUseCompatPadding="true"
+                        android:layout_centerHorizontal="true">
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="vertical"
-                            android:paddingTop="15dp"
-                            android:paddingLeft="15dp"
-                            android:paddingRight="15dp">
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_margin="20dp"
+                            android:gravity="center">
 
-                            <RelativeLayout
-                                android:id="@+id/sendActionWindow"
-                                android:layout_width="match_parent"
-                                android:layout_height="0dp"
-                                android:background="@drawable/gesture_window_bkrd"
-                                android:layout_weight="1.6"
-                                android:gravity="center">
+                            <TextView
+                                android:id="@+id/dynTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="5dp"
+                                android:text="@string/DYNAMIC_TITLE"
+                                android:textColor="@color/colorPrimaryText"
+                                android:textSize="20sp" />
 
+                            <Switch
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginLeft="10dp"
+                                android:layout_marginRight="10dp"
+                                android:id="@+id/dynSwitch"/>
 
-
-                            </RelativeLayout>
-
-                            <RelativeLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="0dp"
-                                android:layout_weight="0.4">
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="vertical"
-                                    android:layout_marginLeft="5dp"
-                                    android:layout_centerVertical="true">
-
-                                    <TextView
-                                        android:id="@+id/connectedDeviceName"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="[SelectedDev]"
-                                        android:textColor="@color/colorPrimaryText"
-                                        android:textSize="15sp" />
-
-                                    <TextView
-                                        android:id="@+id/connectedDeviceAddress"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginLeft="10dp"
-                                        android:text="MA:CA:DD:RE:SS"
-                                        android:textColor="@color/colorSecondaryText"
-                                        android:textSize="15sp"
-                                        android:paddingTop="5dp"/>
-
-                                </LinearLayout>
-
-                            </RelativeLayout>
 
                         </LinearLayout>
 
-                    </RelativeLayout>
-
-                </LinearLayout>
-
-            </RelativeLayout>
+                    </android.support.v7.widget.CardView>
 
 
-            <RelativeLayout
-                android:layout_height="0dp"
-                android:layout_width="wrap_content"
-                android:layout_weight="0.8">
-
-                <ScrollView
-                    android:layout_marginTop="-3dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <LinearLayout
-                        android:id="@+id/gestureSettings"
+                    <android.support.v7.widget.CardView
+                        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                        android:id="@+id/speedCard"
+                        android:layout_gravity="center"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="5dp">
+                        card_view:cardCornerRadius="2dp"
+                        card_view:cardUseCompatPadding="true"
+                        android:layout_centerHorizontal="true">
 
-                        <android.support.v7.widget.CardView
-                            xmlns:card_view="http://schemas.android.com/apk/res-auto"
-                            android:id="@+id/staticCard"
-                            android:layout_gravity="center"
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            card_view:cardCornerRadius="2dp"
-                            card_view:cardUseCompatPadding="true"
-                            android:layout_centerHorizontal="true">
+                            android:orientation="vertical"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="35dp"
+                            android:layout_marginBottom="20dp"
+                            android:layout_marginTop="15dp">
+
+                            <TextView
+                                android:id="@+id/speedTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="15dp"
+                                android:text="@string/SPEED_TITLE"
+                                android:textColor="@color/colorPrimaryText"
+                                android:textSize="20sp" />
 
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal"
-                                android:layout_margin="20dp"
+                                android:layout_marginTop="20dp"
+                                android:layout_marginLeft="20dp"
                                 android:gravity="center">
 
                                 <TextView
-                                    android:id="@+id/staticTitle"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="50dp"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginLeft="5dp"
-                                    android:text="Static"
-                                    android:textColor="@color/colorPrimaryText"
-                                    android:textSize="20sp" />
+                                    android:text="@string/SERVO0_LABEL"
+                                    android:layout_marginLeft="10dp"
+                                    android:textColor="@color/colorSecondaryText"
+                                    android:textSize="15sp" />
 
-                                <Switch
+                                <SeekBar
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:layout_marginLeft="10dp"
                                     android:layout_marginRight="10dp"
-                                    android:id="@+id/staticSwitch"/>
-
-
-                            </LinearLayout>
-
-                        </android.support.v7.widget.CardView>
-
-
-                        <android.support.v7.widget.CardView
-                            xmlns:card_view="http://schemas.android.com/apk/res-auto"
-                            android:id="@+id/speedCard"
-                            android:layout_gravity="center"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            card_view:cardCornerRadius="2dp"
-                            card_view:cardUseCompatPadding="true"
-                            android:layout_centerHorizontal="true">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:layout_marginLeft="10dp"
-                                android:layout_marginRight="35dp"
-                                android:layout_marginBottom="20dp"
-                                android:layout_marginTop="15dp">
+                                    android:id="@+id/servoSpeedSeekBar0" />
 
                                 <TextView
-                                    android:id="@+id/speedTitle"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginLeft="15dp"
-                                    android:text="Speed"
-                                    android:textColor="@color/colorPrimaryText"
-                                    android:textSize="20sp" />
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:layout_marginTop="20dp"
-                                    android:layout_marginLeft="20dp"
-                                    android:gravity="center">
-
-                                    <TextView
-                                        android:layout_width="50dp"
-                                        android:layout_height="wrap_content"
-                                        android:text="Thumb"
-                                        android:layout_marginLeft="10dp"
-                                        android:textColor="@color/colorSecondaryText"
-                                        android:textSize="15sp" />
-
-                                    <SeekBar
-                                        android:layout_width="0dp"
-                                        android:layout_height="wrap_content"
-                                        android:layout_weight="1"
-                                        android:layout_marginLeft="10dp"
-                                        android:layout_marginRight="10dp"
-                                        android:id="@+id/thumbSpeed" />
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="##"
-                                        android:id="@+id/thumbSpeedIndicator"
-                                        android:textSize="18sp"
-                                        android:textColor="#FFFFFF"
-                                        android:padding="8dp"
-                                        android:background="@drawable/value_indicator"/>
-                                </LinearLayout>
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:layout_marginTop="20dp"
-                                    android:layout_marginLeft="20dp"
-                                    android:gravity="center">
-
-                                    <TextView
-                                        android:layout_width="50dp"
-                                        android:layout_height="wrap_content"
-                                        android:text="Index"
-                                        android:layout_marginLeft="10dp"
-                                        android:textColor="@color/colorSecondaryText"
-                                        android:textSize="15sp" />
-
-                                    <SeekBar
-                                        android:layout_width="0dp"
-                                        android:layout_height="wrap_content"
-                                        android:layout_weight="1"
-                                        android:layout_marginLeft="10dp"
-                                        android:layout_marginRight="10dp"
-                                        android:id="@+id/indexSpeed"/>
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="##"
-                                        android:id="@+id/indexSpeedIndicator"
-                                        android:textSize="18sp"
-                                        android:textColor="#FFFFFF"
-                                        android:padding="8dp"
-                                        android:background="@drawable/value_indicator"/>
-                                </LinearLayout>
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:layout_marginTop="20dp"
-                                    android:layout_marginLeft="20dp"
-                                    android:gravity="center">
-
-                                    <TextView
-                                        android:layout_width="50dp"
-                                        android:layout_height="wrap_content"
-                                        android:text="Outer"
-                                        android:layout_marginLeft="10dp"
-                                        android:textColor="@color/colorSecondaryText"
-                                        android:textSize="15sp" />
-
-                                    <SeekBar
-                                        android:layout_width="0dp"
-                                        android:layout_height="wrap_content"
-                                        android:layout_weight="1"
-                                        android:layout_marginLeft="10dp"
-                                        android:layout_marginRight="10dp"
-                                        android:id="@+id/outerSpeed"/>
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="##"
-                                        android:id="@+id/outerSpeedIndicator"
-                                        android:textSize="18sp"
-                                        android:textColor="#FFFFFF"
-                                        android:padding="8dp"
-                                        android:background="@drawable/value_indicator"/>
-                                </LinearLayout>
-
+                                    android:text="##"
+                                    android:id="@+id/servoSpeedIndicator0"
+                                    android:textSize="18sp"
+                                    android:textColor="#FFFFFF"
+                                    android:padding="8dp"
+                                    android:background="@drawable/value_indicator"/>
                             </LinearLayout>
-
-                        </android.support.v7.widget.CardView>
-
-                        <android.support.v7.widget.CardView
-                            xmlns:card_view="http://schemas.android.com/apk/res-auto"
-                            android:id="@+id/depthCard"
-                            android:layout_gravity="center"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            card_view:cardCornerRadius="2dp"
-                            card_view:cardUseCompatPadding="true"
-                            android:layout_centerHorizontal="true">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:layout_marginLeft="10dp"
-                                android:layout_marginRight="35dp"
-                                android:layout_marginBottom="20dp"
-                                android:layout_marginTop="15dp">
+                                android:orientation="horizontal"
+                                android:layout_marginTop="20dp"
+                                android:layout_marginLeft="20dp"
+                                android:gravity="center">
 
                                 <TextView
-                                    android:id="@+id/depthTitle"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="50dp"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginLeft="15dp"
-                                    android:text="Depth"
-                                    android:textColor="@color/colorPrimaryText"
-                                    android:textSize="20sp" />
+                                    android:text="@string/SERVO1_LABEL"
+                                    android:layout_marginLeft="10dp"
+                                    android:textColor="@color/colorSecondaryText"
+                                    android:textSize="15sp" />
 
-                                <LinearLayout
-                                    android:layout_width="match_parent"
+                                <SeekBar
+                                    android:layout_width="0dp"
                                     android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:layout_marginTop="20dp"
-                                    android:layout_marginLeft="20dp"
-                                    android:gravity="center">
-
-                                    <TextView
-                                        android:layout_width="50dp"
-                                        android:layout_height="wrap_content"
-                                        android:text="Thumb"
-                                        android:layout_marginLeft="10dp"
-                                        android:textColor="@color/colorSecondaryText"
-                                        android:textSize="15sp" />
-
-                                    <SeekBar
-                                        android:layout_width="0dp"
-                                        android:layout_height="wrap_content"
-                                        android:layout_weight="1"
-                                        android:layout_marginLeft="10dp"
-                                        android:layout_marginRight="10dp"
-                                        android:id="@+id/thumbDepth" />
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="##"
-                                        android:id="@+id/thumbDepthIndicator"
-                                        android:textSize="18sp"
-                                        android:textColor="#FFFFFF"
-                                        android:padding="8dp"
-                                        android:background="@drawable/value_indicator"/>
-                                </LinearLayout>
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:layout_marginTop="20dp"
-                                    android:layout_marginLeft="20dp"
-                                    android:gravity="center">
-
-                                    <TextView
-                                        android:layout_width="50dp"
-                                        android:layout_height="wrap_content"
-                                        android:text="Index"
-                                        android:layout_marginLeft="10dp"
-                                        android:textColor="@color/colorSecondaryText"
-                                        android:textSize="15sp" />
-
-                                    <SeekBar
-                                        android:layout_width="0dp"
-                                        android:layout_height="wrap_content"
-                                        android:layout_weight="1"
-                                        android:layout_marginLeft="10dp"
-                                        android:layout_marginRight="10dp"
-                                        android:id="@+id/indexDepth"/>
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="##"
-                                        android:id="@+id/indexDepthIndicator"
-                                        android:textSize="18sp"
-                                        android:textColor="#FFFFFF"
-                                        android:padding="8dp"
-                                        android:background="@drawable/value_indicator"/>
-                                </LinearLayout>
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:layout_marginTop="20dp"
-                                    android:layout_marginLeft="20dp"
-                                    android:gravity="center">
-
-                                    <TextView
-                                        android:layout_width="50dp"
-                                        android:layout_height="wrap_content"
-                                        android:text="Outer"
-                                        android:layout_marginLeft="10dp"
-                                        android:textColor="@color/colorSecondaryText"
-                                        android:textSize="15sp" />
-
-                                    <SeekBar
-                                        android:layout_width="0dp"
-                                        android:layout_height="wrap_content"
-                                        android:layout_weight="1"
-                                        android:layout_marginLeft="10dp"
-                                        android:layout_marginRight="10dp"
-                                        android:id="@+id/outerDepth"/>
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="##"
-                                        android:id="@+id/outerDepthIndicator"
-                                        android:textSize="18sp"
-                                        android:textColor="#FFFFFF"
-                                        android:padding="8dp"
-                                        android:background="@drawable/value_indicator"/>
-                                </LinearLayout>
-
-                            </LinearLayout>
-
-                        </android.support.v7.widget.CardView>
-
-                        <android.support.v7.widget.CardView
-                            xmlns:card_view="http://schemas.android.com/apk/res-auto"
-                            android:id="@+id/actThreshCard"
-                            android:layout_gravity="center"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            card_view:cardCornerRadius="2dp"
-                            card_view:cardUseCompatPadding="true"
-                            android:layout_centerHorizontal="true">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:layout_marginLeft="10dp"
-                                android:layout_marginRight="35dp"
-                                android:layout_marginBottom="20dp"
-                                android:layout_marginTop="15dp">
+                                    android:layout_weight="1"
+                                    android:layout_marginLeft="10dp"
+                                    android:layout_marginRight="10dp"
+                                    android:id="@+id/servoSpeedSeekBar1"/>
 
                                 <TextView
-                                    android:id="@+id/actThreshTitle"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginLeft="15dp"
-                                    android:text="Threshhold"
-                                    android:textColor="@color/colorPrimaryText"
-                                    android:textSize="20sp" />
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:layout_marginTop="20dp"
-                                    android:layout_marginLeft="20dp"
-                                    android:gravity="center">
-
-                                    <SeekBar
-                                        android:layout_width="0dp"
-                                        android:layout_height="wrap_content"
-                                        android:layout_weight="1"
-                                        android:layout_marginLeft="10dp"
-                                        android:layout_marginRight="10dp"
-                                        android:id="@+id/actThreshSeekBar" />
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="##"
-                                        android:id="@+id/actThreshIndicator"
-                                        android:textSize="18sp"
-                                        android:textColor="#FFFFFF"
-                                        android:padding="8dp"
-                                        android:background="@drawable/value_indicator"/>
-                                </LinearLayout>
-
+                                    android:text="##"
+                                    android:id="@+id/servoSpeedIndicator1"
+                                    android:textSize="18sp"
+                                    android:textColor="#FFFFFF"
+                                    android:padding="8dp"
+                                    android:background="@drawable/value_indicator"/>
                             </LinearLayout>
-
-                        </android.support.v7.widget.CardView>
-
-                        <android.support.v7.widget.CardView
-                            xmlns:card_view="http://schemas.android.com/apk/res-auto"
-                            android:id="@+id/writeDelCard"
-                            android:layout_gravity="center"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            card_view:cardCornerRadius="2dp"
-                            card_view:cardUseCompatPadding="true"
-                            android:layout_centerHorizontal="true">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:layout_marginLeft="10dp"
-                                android:layout_marginRight="35dp"
-                                android:layout_marginBottom="20dp"
-                                android:layout_marginTop="15dp">
+                                android:orientation="horizontal"
+                                android:layout_marginTop="20dp"
+                                android:layout_marginLeft="20dp"
+                                android:gravity="center">
 
                                 <TextView
-                                    android:id="@+id/writeDelTitle"
+                                    android:layout_width="50dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/SERVO2_LABEL"
+                                    android:layout_marginLeft="10dp"
+                                    android:textColor="@color/colorSecondaryText"
+                                    android:textSize="15sp" />
+
+                                <SeekBar
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:layout_marginLeft="10dp"
+                                    android:layout_marginRight="10dp"
+                                    android:id="@+id/servoSpeedSeekBar2"/>
+
+                                <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginLeft="15dp"
-                                    android:text="Write Delay"
-                                    android:textColor="@color/colorPrimaryText"
-                                    android:textSize="20sp" />
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:layout_marginTop="20dp"
-                                    android:layout_marginLeft="20dp"
-                                    android:gravity="center">
-
-                                    <SeekBar
-                                        android:layout_width="0dp"
-                                        android:layout_height="wrap_content"
-                                        android:layout_weight="1"
-                                        android:layout_marginLeft="10dp"
-                                        android:layout_marginRight="10dp"
-                                        android:id="@+id/writeDelSeekBar" />
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="##"
-                                        android:id="@+id/writeDelIndicator"
-                                        android:textSize="18sp"
-                                        android:textColor="#FFFFFF"
-                                        android:padding="8dp"
-                                        android:background="@drawable/value_indicator"/>
-                                </LinearLayout>
-
+                                    android:text="##"
+                                    android:id="@+id/servoSpeedIndicator2"
+                                    android:textSize="18sp"
+                                    android:textColor="#FFFFFF"
+                                    android:padding="8dp"
+                                    android:background="@drawable/value_indicator"/>
                             </LinearLayout>
 
-                        </android.support.v7.widget.CardView>
+                        </LinearLayout>
 
+                    </android.support.v7.widget.CardView>
 
-                        <android.support.v7.widget.CardView
-                            xmlns:card_view="http://schemas.android.com/apk/res-auto"
-                            android:id="@+id/debugCard"
-                            android:layout_gravity="center"
+                    <android.support.v7.widget.CardView
+                        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                        android:id="@+id/depthCard"
+                        android:layout_gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        card_view:cardCornerRadius="2dp"
+                        card_view:cardUseCompatPadding="true"
+                        android:layout_centerHorizontal="true">
+
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            card_view:cardCornerRadius="2dp"
-                            card_view:cardUseCompatPadding="true"
-                            android:layout_centerHorizontal="true">
+                            android:orientation="vertical"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="35dp"
+                            android:layout_marginBottom="20dp"
+                            android:layout_marginTop="15dp">
+
+                            <TextView
+                                android:id="@+id/depthTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="15dp"
+                                android:text="@string/DEPTH_TITLE"
+                                android:textColor="@color/colorPrimaryText"
+                                android:textSize="20sp" />
 
                             <LinearLayout
-                                android:id="@+id/debugSendString"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:layout_margin="10dp">
+                                android:orientation="horizontal"
+                                android:layout_marginTop="20dp"
+                                android:layout_marginLeft="20dp"
+                                android:gravity="center">
 
-                                <EditText
-                                    android:id="@+id/input"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content" />
+                                <TextView
+                                    android:layout_width="50dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/SERVO0_LABEL"
+                                    android:layout_marginLeft="10dp"
+                                    android:textColor="@color/colorSecondaryText"
+                                    android:textSize="15sp" />
 
+                                <SeekBar
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:layout_marginLeft="10dp"
+                                    android:layout_marginRight="10dp"
+                                    android:id="@+id/gripDepthSeekBar0" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="##"
+                                    android:id="@+id/gripDepthIndicator0"
+                                    android:textSize="18sp"
+                                    android:textColor="#FFFFFF"
+                                    android:padding="8dp"
+                                    android:background="@drawable/value_indicator"/>
                             </LinearLayout>
 
-                        </android.support.v7.widget.CardView>
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginTop="20dp"
+                                android:layout_marginLeft="20dp"
+                                android:gravity="center">
 
-                    </LinearLayout>
+                                <TextView
+                                    android:layout_width="50dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/SERVO1_LABEL"
+                                    android:layout_marginLeft="10dp"
+                                    android:textColor="@color/colorSecondaryText"
+                                    android:textSize="15sp" />
 
-                </ScrollView>
+                                <SeekBar
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:layout_marginLeft="10dp"
+                                    android:layout_marginRight="10dp"
+                                    android:id="@+id/gripDepthSeekBar1"/>
 
-            </RelativeLayout>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="##"
+                                    android:id="@+id/gripDepthIndicator1"
+                                    android:textSize="18sp"
+                                    android:textColor="#FFFFFF"
+                                    android:padding="8dp"
+                                    android:background="@drawable/value_indicator"/>
+                            </LinearLayout>
 
-        </LinearLayout>
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginTop="20dp"
+                                android:layout_marginLeft="20dp"
+                                android:gravity="center">
+
+                                <TextView
+                                    android:layout_width="50dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/SERVO2_LABEL"
+                                    android:layout_marginLeft="10dp"
+                                    android:textColor="@color/colorSecondaryText"
+                                    android:textSize="15sp" />
+
+                                <SeekBar
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:layout_marginLeft="10dp"
+                                    android:layout_marginRight="10dp"
+                                    android:id="@+id/gripDepthSeekBar2"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="##"
+                                    android:id="@+id/gripDepthIndicator2"
+                                    android:textSize="18sp"
+                                    android:textColor="#FFFFFF"
+                                    android:padding="8dp"
+                                    android:background="@drawable/value_indicator"/>
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </android.support.v7.widget.CardView>
+
+                    <android.support.v7.widget.CardView
+                        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                        android:id="@+id/actThreshCard"
+                        android:layout_gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        card_view:cardCornerRadius="2dp"
+                        card_view:cardUseCompatPadding="true"
+                        android:layout_centerHorizontal="true">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="35dp"
+                            android:layout_marginBottom="20dp"
+                            android:layout_marginTop="15dp">
+
+                            <TextView
+                                android:id="@+id/actThreshTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="15dp"
+                                android:text="Threshhold"
+                                android:textColor="@color/colorPrimaryText"
+                                android:textSize="20sp" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginTop="20dp"
+                                android:layout_marginLeft="20dp"
+                                android:gravity="center">
+
+                                <SeekBar
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:layout_marginLeft="10dp"
+                                    android:layout_marginRight="10dp"
+                                    android:id="@+id/actThreshSeekBar" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="##"
+                                    android:id="@+id/actThreshIndicator"
+                                    android:textSize="18sp"
+                                    android:textColor="#FFFFFF"
+                                    android:padding="8dp"
+                                    android:background="@drawable/value_indicator"/>
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </android.support.v7.widget.CardView>
+
+                    <android.support.v7.widget.CardView
+                        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                        android:id="@+id/writeDelCard"
+                        android:layout_gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        card_view:cardCornerRadius="2dp"
+                        card_view:cardUseCompatPadding="true"
+                        android:layout_centerHorizontal="true">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="35dp"
+                            android:layout_marginBottom="20dp"
+                            android:layout_marginTop="15dp">
+
+                            <TextView
+                                android:id="@+id/writeDelTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="15dp"
+                                android:text="Write Delay"
+                                android:textColor="@color/colorPrimaryText"
+                                android:textSize="20sp" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginTop="20dp"
+                                android:layout_marginLeft="20dp"
+                                android:gravity="center">
+
+                                <SeekBar
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:layout_marginLeft="10dp"
+                                    android:layout_marginRight="10dp"
+                                    android:id="@+id/writeDelSeekBar" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="##"
+                                    android:id="@+id/writeDelIndicator"
+                                    android:textSize="18sp"
+                                    android:textColor="#FFFFFF"
+                                    android:padding="8dp"
+                                    android:background="@drawable/value_indicator"/>
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </android.support.v7.widget.CardView>
+
+
+                    <android.support.v7.widget.CardView
+                        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                        android:id="@+id/debugCard"
+                        android:layout_gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        card_view:cardCornerRadius="2dp"
+                        card_view:cardUseCompatPadding="true"
+                        android:layout_centerHorizontal="true">
+
+                        <LinearLayout
+                            android:id="@+id/debugSendString"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_margin="10dp">
+
+                        </LinearLayout>
+
+                    </android.support.v7.widget.CardView>
+
+                </LinearLayout>
+
+            </ScrollView>
+
+        </RelativeLayout>
 
     </LinearLayout>
 
