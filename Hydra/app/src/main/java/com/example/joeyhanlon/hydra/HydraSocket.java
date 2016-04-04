@@ -45,7 +45,7 @@ public class HydraSocket {
     }
 
     // When connection is lost, set all BT variables to null
-    private static void connectionFailed(){
+    public static void connectionFailed(){
         socket = null;
         deviceName = null;
         deviceAddress = null;

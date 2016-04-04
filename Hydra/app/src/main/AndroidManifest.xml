@@ -29,6 +29,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.joeyhanlon.hydra.MainActivity" />
         </activity>
+        <activity
+            android:name=".CalActivity"
+            android:label="@string/title_activity_cal"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/MyMaterialTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.joeyhanlon.hydra.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

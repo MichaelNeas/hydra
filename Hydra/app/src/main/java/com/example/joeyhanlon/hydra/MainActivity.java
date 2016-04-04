@@ -171,7 +171,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
         // TODO add all default modes to list
         myModeManager.addNewMode("Default Grip", true, 0.5f, 5.0f, 100, 100, 100, 5.0f, 5.0f, 5.0f);
-        setMode(myModeManager.getCurrentMode());
     }
 
 
@@ -491,6 +490,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     @Override
     protected void onStart() {
         super.onStart();
+        setMode(myModeManager.getCurrentMode());
     }
 
     @Override

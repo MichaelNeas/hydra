@@ -37,10 +37,15 @@ public class BluetoothSetupActivity extends AppCompatActivity implements View.On
     // Listview to display all paired devices
     ListView listViewPairedDevice;
 
+    // Indicates if bluetooth connection is in progress
+    private boolean connecting;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_btsetup);
+
+        connecting = false; // Connection is not occurring right away
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -109,6 +114,7 @@ public class BluetoothSetupActivity extends AppCompatActivity implements View.On
                 Toast.makeText(this,
                         "BlueTooth NOT enabled",
                         Toast.LENGTH_SHORT).show();
+                HydraSocket.connectionFailed();
                 finish();
             }
         }
@@ -134,6 +140,9 @@ public class BluetoothSetupActivity extends AppCompatActivity implements View.On
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view,
                                         int position, long id) {
+
+                    connecting = true;  // Connection has begun
+
                     BluetoothDevice device =
                             (BluetoothDevice) pairedDeviceArrayList.get(position);
                     Toast.makeText(BluetoothSetupActivity.this,
@@ -154,6 +163,7 @@ public class BluetoothSetupActivity extends AppCompatActivity implements View.On
                                 Toast.LENGTH_LONG).show();
                         // Remain in Bluetooth activity if connection fails
                         setResult(Activity.RESULT_CANCELED);
+                        connecting = false; // No longer connecting
                     }
                 }
             });
@@ -167,5 +177,16 @@ public class BluetoothSetupActivity extends AppCompatActivity implements View.On
                 // TODO implement bluetooth pairing button
         }
     }
+
+    // Exit BluetoothSetupActivity with back press, only if not mid connection
+    @Override
+    public void onBackPressed(){
+        // Only exit if bluetooth connection is not occurring
+        if(!connecting){
+            setResult(Activity.RESULT_CANCELED);
+            finish();
+        }
+    }
+
 
 }
