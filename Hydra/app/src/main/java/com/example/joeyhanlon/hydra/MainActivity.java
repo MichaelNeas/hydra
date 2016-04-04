@@ -258,8 +258,8 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         {
             case (R.id.fabSave):
 
-                sendArduinoMessage("1=D;2=0.5;3=5.0;4=100,100,100;5=5.0,5.0,5.0;");
-
+                //sendArduinoMessage("1=D;2=0.5;3=5.0;4=100,100,100;5=5.0,5.0,5.0;");
+                sendArduinoMessage(inputField.getText().toString());
                 // Save currently selected mode with currently selected settings
                 //saveHydraMode();
                 break;
