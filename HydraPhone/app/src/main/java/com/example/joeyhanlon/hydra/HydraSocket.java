@@ -2,6 +2,7 @@ package com.example.joeyhanlon.hydra;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,15 +81,20 @@ public class HydraSocket {
         }
     }
 
-    // Read from connected socket
-    public static String read(){
+    // Read integer from connected socket
+    // For calibration
+    public static int readInt(){
+        int result = 0;
         // Only read messages if device is connected
         if(HydraSocket.isConnected()) {
-            return myThreadBTCommunication.read();
+            // Wait for message to be available
+            String message = myThreadBTCommunication.read();
+            while (message == null){
+                message = myThreadBTCommunication.read();
+            }
+            result = Integer.parseInt(message);
         }
-        else{
-            return null;
-        }
+        return result;
     }
 
     // Thread used to create bluetooth connection
@@ -226,12 +232,18 @@ public class HydraSocket {
 
         // Read from socket
         public String read() {
-            String message= "";
-            byte[] buffer = new byte[10];
+            String message = null;
             try {
-                connectedInputStream.read(buffer);
-                message = buffer.toString();
-            } catch(IOException e) {
+                if (connectedInputStream.available() != 0){
+                    byte[] buffer = new byte[10];
+                    try {
+                        connectedInputStream.read(buffer);
+                        message = buffer.toString();
+                    } catch(IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (IOException e) {
                 e.printStackTrace();
             }
             return message;

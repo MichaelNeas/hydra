@@ -158,8 +158,8 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         writeDelSeekBar.setOnSeekBarChangeListener(this);
         writeDelIndicator = (TextView) findViewById(R.id.writeDelIndicator);
 
-        fab = (FloatingActionButton)findViewById(R.id.fabSave);
-        fab.setOnClickListener(this);
+        //fab = (FloatingActionButton)findViewById(R.id.fabSave);
+        //fab.setOnClickListener(this);
 
         // Create ModeManager to store list of modes
         myModeManager = new ModeManager();
@@ -305,6 +305,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
                 // Message includes each Servo's depth value
                 message = "4=" + depthProg0 + "," + depthProg1 + "," + depthProg2 + ";";
+
                 break;
 
             case (R.id.actThreshSeekBar):
@@ -462,9 +463,9 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     }
 
     // Return string sent by Arduino, used for calibration
-    public String readArduinoMessage(){
+    /*public String readArduinoMessage(){
         return HydraSocket.read();
-    }
+    }*/
     // ----- /BLUETOOTH COMM METHODS -----
 
 
@@ -532,6 +533,11 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
                 connectedDeviceName.setText(name);
                 connectedDeviceAddress.setText(address);
+
+                // Run calibration upon connection
+                // TODO CalActivity fix - works with Arduino calibrate method
+                //Intent calIntent = new Intent(this, CalActivity.class);
+                //startActivity(calIntent);
 
             }
             // No bluetooth device

@@ -388,22 +388,26 @@ void paramUpdate(int paramNum){
 void calibrate(){
   long currentReading;
   
-  bluetooth.println("Relax!");
-
-  waitForACK(); // User confirms relaxing
+  // Stage 1
+  bluetooth.write("1"); // Acknowledge "C;"
+  
+  waitForACK();         // Wait for "Relaxed" signal
   
   currentReading = getSensorReading(NUM_READS^2);
   ARM_LOW = (int) currentReading;
-  bluetooth.println("Low set.");
+  // Low threshold set
+ 
+  // Stage 2
+  bluetooth.write("2");
 
-  bluetooth.println("Flex!");
-
-  waitForACK(); // User confirms flexing
+  waitForACK();         // Wait for "Flexed" signal
   
   currentReading = getSensorReading(NUM_READS^2);
   ARM_HIGH = (int) currentReading;
-  bluetooth.println("High set.");
+  // High threshold set
 
+  bluetooth.write("3");
+  
   bluetooth.flush();
 
   waitForACK(); // User exits calibration menu
