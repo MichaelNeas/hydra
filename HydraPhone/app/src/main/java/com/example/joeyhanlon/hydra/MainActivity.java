@@ -281,9 +281,9 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
             case (R.id.servoSpeedSeekBar2):
                 // Called for all servoSpeed cases as a result of not breaking between them
                 // Convert progress bar values
-                float param5a = (float) (servoSpeedSeekBar0.getProgress() / 100) * (float) (10.0 - 1.0) + (float) 1.0;
-                float param5b = (float) (servoSpeedSeekBar1.getProgress() / 100) * (float) (10.0 - 1.0) + (float) 1.0;
-                float param5c = (float) (servoSpeedSeekBar2.getProgress() / 100) * (float) (10.0 - 1.0) + (float) 1.0;
+                float param5a = (float) ((servoSpeedSeekBar0.getProgress() / 11) + 1);
+                float param5b = (float) ((servoSpeedSeekBar1.getProgress() / 11) + 1);
+                float param5c = (float) ((servoSpeedSeekBar2.getProgress() / 11) + 1);
 
                 // Convert each speed value to string
                 String param5aStr = Float.toString(param5a);
@@ -305,12 +305,11 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
                 // Message includes each Servo's depth value
                 message = "4=" + depthProg0 + "," + depthProg1 + "," + depthProg2 + ";";
-
                 break;
 
             case (R.id.actThreshSeekBar):
                 // Convert progress bar value
-                float param2 = (float) (actThreshSeekBar.getProgress() / 100) * (float) (0.75 - 0.05) + (float) 0.05;
+                float param2 = (float) (((actThreshSeekBar.getProgress()*7) / 10) + 5);
                 // String of float value
                 String param2Str = Float.toString(param2);
                 message = "2=" + param2Str + ";";
@@ -318,7 +317,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
             case (R.id.writeDelSeekBar):
                 // Convert progress bar value
-                float param3 = (float) (writeDelSeekBar.getProgress() / 100) * (float) (10.0 - 1.0) + (float) 1.0;
+                float param3 = (float) (writeDelSeekBar.getProgress() / 10);
                 // String of float value
                 String param3Str = Float.toString(param3);
                 message = "3=" + param3Str + ";";
