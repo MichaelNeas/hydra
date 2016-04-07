@@ -2,6 +2,7 @@ package com.example.joeyhanlon.hydra;
 
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -23,27 +24,6 @@ public class ModeManager {
         modes = new ArrayList<HydraMode>();
     }
 
-    // Add new mode to Hydra initially with default settings
-    public void addNewBlankMode(){
-
-        // Default mode parameters
-        String name = "New Mode";
-        boolean dynamic = true;
-        float actThreshold = (float) 0.5;
-        float writeDelay = (float) 5.0;
-        int gripDepthA = 100;
-        int gripDepthB = 100;
-        int gripDepthC = 100;
-        float servoSpeedA = (float) 5.0;
-        float servoSpeedB = (float) 5.0;
-        float servoSpeedC = (float) 5.0;
-
-        modes.add(new HydraMode(name, dynamic, actThreshold, writeDelay,
-                gripDepthA, gripDepthB, gripDepthC,
-                servoSpeedA, servoSpeedB, servoSpeedC));
-        currentMode = modes.get(modes.size() - 1);
-    }
-
     // Add new mode to Hydra with specified name and settings
     public void addNewMode(String name, boolean dynamic, float actThreshold, float writeDelay,
                            int gripDepthA, int gripDepthB, int gripDepthC,
@@ -52,7 +32,9 @@ public class ModeManager {
         modes.add(new HydraMode(name, dynamic, actThreshold, writeDelay,
                 gripDepthA, gripDepthB, gripDepthC,
                 servoSpeedA, servoSpeedB, servoSpeedC));
-        currentMode = modes.get(modes.size() - 1);
+        HydraMode thisMode = modes.get(modes.size() - 1);
+        currentMode = thisMode;
+        //adapter.add(thisMode);
     }
 
     // Adapter used to display modes in listview of main activity
@@ -85,7 +67,11 @@ public class ModeManager {
 
     public HydraMode getCurrentMode(){ return currentMode; }
 
-    public void setCurrentMode(HydraMode mode){ currentMode = mode; }
+    public void setCurrentMode(HydraMode mode){
+        currentMode = mode;
+    }
+
+    public HydraMode getMode(int position) { return modes.get(position); }
 
     public void setModeParam(int n, Object param){
         currentMode.setParam(n, param);

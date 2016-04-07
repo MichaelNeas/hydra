@@ -139,9 +139,6 @@ public class BluetoothSetupActivity extends AppCompatActivity implements View.On
 
                     boolean connected = HydraSocket.BTDeviceConnect(device);
                     if (connected){
-                        Toast.makeText(BluetoothSetupActivity.this,
-                                "Connected to " + device.getName(),
-                                Toast.LENGTH_LONG).show();
                             setResult(Activity.RESULT_OK);
                             finish();
                     }

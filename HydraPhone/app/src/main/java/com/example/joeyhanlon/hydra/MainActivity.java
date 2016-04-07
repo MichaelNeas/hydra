@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     // The functional application window. Used to mask it during BT init and such.
     LinearLayout inputPane;
 
-    // Field shows string to be sent
+    // Debugging fields
     EditText inputField;
     FloatingActionButton fab;
 
@@ -45,19 +45,26 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     TextView connectedDeviceName;
     TextView connectedDeviceAddress;
 
-    // SELECTED ACTION
+
+    // ----- Hydra UI Elements -----
+
+
+    // --- MODE CONTROL ---
+
+    // List of Hydra Modes
     ListView modesListView;
-    // Planning to replace the radio group with the listview above, which will also have radio
-    //  buttons and all that jazz
-    RadioGroup actionList;
-    RadioButton grip;
-    RadioButton pinch;
-    RadioButton click;
-    RadioButton point;
-    RadioButton hook;
+
+    // Text showing current mode
+    TextView currentModeText;
+
+    // Buttons to save and add modes
     Button saveModeButton, newModeButton;
 
-    // ----- Hydra Parameter UI Elements -----
+    // --- /MODE CONTROL ---
+
+
+    // --- PARAMETER CONTROL ---
+
     // STATIC / DYNAMIC
     Switch dynSwitch;
     // SERVO SPEED
@@ -81,13 +88,15 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     // WRITE DELAY
     SeekBar writeDelSeekBar;
     TextView writeDelIndicator;
+
+    // --- PARAMETER CONTROL ---
+
+
     // ----- /Hydra Parameter UI Elements -----
 
     // String array to be sent to the arm, initialized to default values
     String[] SEND_STRING = {"1=D;","2=0.5;","3=5.0;","4=100,100,100;","5=5.0,5.0,5.0;"};
 
-    // BT thread variables
-    TextView textStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,26 +114,22 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setTitle(null);
 
-        // ----- BT WINDOW SETUP -----
-        textStatus = (TextView)findViewById(R.id.status);
-
-        // ----- /BT WINDOW SETUP -----
-
-
         // ----- MAIN WINDOW SETUP -----
         inputPane = (LinearLayout)findViewById(R.id.inputPane);
         inputField = (EditText)findViewById(R.id.input);
 
-        // TODO instantiate modesListView, saveModeButton, newModeButton
+        // TODO instantiate saveModeButton, newModeButton
 
-        actionList = (RadioGroup) findViewById(R.id.actionList);
+        //actionList = (RadioGroup) findViewById(R.id.actionList);
         // Relay information regarding selected action on click
-        actionList.setOnCheckedChangeListener(this);
+        //actionList.setOnCheckedChangeListener(this);
 
-        // TODO imageView in sendActionWindow
-
+        // Bluetooth info display
         connectedDeviceName = (TextView)findViewById(R.id.connectedDeviceName);
         connectedDeviceAddress = (TextView)findViewById(R.id.connectedDeviceAddress);
+
+        modesListView = (ListView)findViewById(R.id.modesListView);
+        currentModeText = (TextView)findViewById(R.id.currentModeText);
 
         speedCard = (CardView)findViewById(R.id.speedCard);
         servoSpeedSeekBar0 = (SeekBar)findViewById(R.id.servoSpeedSeekBar0);
@@ -164,8 +169,15 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         // Create ModeManager to store list of modes
         myModeManager = new ModeManager();
 
+        // Set up adapter for list of modes
+        myModeManager.createAdapter(this);
+        modesListView.setAdapter(myModeManager.getAdapter());
+        modesListView.setOnItemClickListener(this);
+
         // TODO add all default modes to list
+        myModeManager.addNewMode("Point", false, 0.5f, 5.0f, 100, 0, 0, 5.0f, 0f, 0f);
         myModeManager.addNewMode("Default Grip", true, 0.5f, 5.0f, 100, 100, 100, 5.0f, 5.0f, 5.0f);
+
     }
 
 
@@ -175,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     // NEW mode selection
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        setMode((HydraMode) parent.getItemAtPosition((int) id));
+        setMode(myModeManager.getMode(position));
     }
 
 
@@ -420,6 +432,8 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     // Sets current mode to mode (updates UI, sends message)
     private void setMode(HydraMode mode){
         myModeManager.setCurrentMode(mode);
+        currentModeText.setText(mode.getName());
+        
         // Update parameter UI stuff
         // Dynamic or Static
         dynSwitch.setShowText((boolean) mode.getParam(1));

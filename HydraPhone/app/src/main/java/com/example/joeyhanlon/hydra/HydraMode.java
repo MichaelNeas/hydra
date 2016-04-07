@@ -110,4 +110,8 @@ public class HydraMode {
 
         return message;
     }
+
+    public String getName() {
+        return myName;
+    }
 }

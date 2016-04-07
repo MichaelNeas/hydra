@@ -49,7 +49,7 @@
                     android:layout_weight="0.9">
 
                     <TextView
-                        android:id="@+id/actionTitle"
+                        android:id="@+id/currentModeText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="20dp"
@@ -58,13 +58,21 @@
                         android:textColor="@color/colorPrimaryText"
                         android:textSize="20sp" />
 
+
+                    <ListView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/modesListView"
+                        android:layout_alignParentEnd="false"
+                        android:layout_below="@+id/currentModeText" />
+
                     <RadioGroup
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:id="@+id/actionList"
                         android:checkedButton="@+id/selectedAction"
                         android:layout_centerHorizontal="true"
-                        android:layout_below="@id/actionTitle"
+                        android:layout_below="@id/currentModeText"
                         android:layout_marginBottom="10dp"
                         android:visibility="gone">
 
@@ -651,7 +659,7 @@
                                 android:id="@+id/input"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_alignEnd="@id/actionTitle" />
+                                android:layout_alignEnd="@id/currentModeText" />
 
                         </LinearLayout>
 
