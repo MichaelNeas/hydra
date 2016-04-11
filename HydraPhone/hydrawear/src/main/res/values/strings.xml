@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">HydraWear</string>
+    <string name="hello_round">Hydra wear is ago!</string>
+    <string name="hello_square">Hello Square World!</string>
+</resources>
