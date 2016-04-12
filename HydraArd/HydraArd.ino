@@ -27,11 +27,10 @@ int RESP_MAX[numServos];                // Maximum increment value for Servo mov
 
 
 
-
 // EMS (INPUT) VARIABLES
-int ARM_LOW = 100;                          // Min sensor value
-int ARM_HIGH = 1000;                        // Max sensor value
-long reading = 0;                           // Reading from EMS
+int ARM_LOW = 100;                      // Min default sensor value
+int ARM_HIGH = 1000;                    // Max default sensor value
+long reading;                           // Reading from EMS
 
 
 // BLUETOOTH COMMUNICATION VARIABLES
@@ -40,14 +39,13 @@ SoftwareSerial bluetooth(rxPin, txPin);     // Software serial comm via bluetoot
 String defaultMsg = "1=D;2=0.5;3=5.0;4=100,100,100;5=5.0,5.0,5.0;"; // Default settings message
 
 
-
 void setup() {
-  Serial.begin(9600); // For debug/print messages
+  //Serial.begin(9600); // For debug/print messages
 
   // Initialize default parameters
   pinMode(EMS_PIN, INPUT);
-  setupBluetooth();
   setupServos();
+  setupBluetooth();
 }
 
 
@@ -60,7 +58,8 @@ void loop() {
 
   // If no messages, process movement
   else {
-  // 1. Obtain sensor readings, adjust to useful numbers
+    
+  // 1. Obtain sensor reading
     reading = readMuscle();
     
   // 2. Based on sensor readings, write to Servo's
@@ -129,6 +128,19 @@ long readMuscle(){
 long mapReading(long cutoffVal, int i){
   long mappedVal = map(cutoffVal, ARM_LOW, ARM_HIGH, SERV_START[i], SERV_END[i]);
   return mappedVal;
+}
+
+// retract(): bring fingers to base position
+void retract(){
+  bool isRetracted = false;
+  while (!isRetracted){
+    moveMuscle(ARM_LOW);
+    isRetracted = true;
+    for (int i = 0; i < numServos; i ++){
+      // Fully retracted when all control values at start position
+      isRetracted = isRetracted && (servoControl[i] == SERV_START[i]);
+    }
+  }
 }
 
 // moveMuscle(long): if mapped EMG reading represents a flex, increment Servo control values based on parameters
@@ -387,10 +399,11 @@ void paramUpdate(int paramNum){
 // calibrate: sets ARM_HIGH and ARM_LOW to new values
 void calibrate(){
   long currentReading;
+
+  // Retract fingers to base before calibrating 
+  retract();
   
   // Stage 1
-  bluetooth.write("1"); // Acknowledge "C;"
-  
   waitForACK();         // Wait for "Relaxed" signal
   
   currentReading = getSensorReading(NUM_READS^2);
@@ -398,19 +411,15 @@ void calibrate(){
   // Low threshold set
  
   // Stage 2
-  bluetooth.write("2");
-
   waitForACK();         // Wait for "Flexed" signal
   
   currentReading = getSensorReading(NUM_READS^2);
   ARM_HIGH = (int) currentReading;
   // High threshold set
-
-  bluetooth.write("3");
   
   bluetooth.flush();
 
-  waitForACK(); // User exits calibration menu
+  waitForACK();
 }
 
 // waitForACK(): continuously flushes bluetooth buffer until acknowledgement (a character '1') received

@@ -1,1 +1,1 @@
-include ':app', ':hydrawear'
+include ':hydrawear', ':app'
