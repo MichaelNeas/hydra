@@ -502,7 +502,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_calibrate) {
-
             Intent calIntent = new Intent(this, CalActivity.class);
             startActivity(calIntent);
 
@@ -550,8 +549,8 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
                 // Run calibration upon connection
                 // TODO CalActivity fix - works with Arduino calibrate method
-                //Intent calIntent = new Intent(this, CalActivity.class);
-                //startActivity(calIntent);
+                Intent calIntent = new Intent(this, CalActivity.class);
+                startActivity(calIntent);
 
             }
             // No bluetooth device

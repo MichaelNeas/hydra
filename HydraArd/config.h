@@ -1,5 +1,7 @@
 const int numServos = 3;                          // Number of Servo motors controlling fingers
 
+const int numParams = 5;                          // Number of Servo parameters
+
 const int servoPins[numServos] = {11, 12, 13};    // Arduino pins for Servo output (must be same amount of numServos!)
                                                   // {Index, Outer, Thumb}
                                                   
@@ -18,3 +20,4 @@ const int DELAY_MAX = 10000;                      // Maximum value for delay bet
 const int NUM_READS = 200;                        // Number of readings to average from EMS input (granularity)
 
 const int BTOOTH_BAUD = 9600;                     // Bluetooth baud rate
+const int maxMessageCount = 20;                   // Maximum character length of received parameter messages to handle errors

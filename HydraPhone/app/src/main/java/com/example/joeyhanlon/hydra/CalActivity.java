@@ -15,7 +15,8 @@ import java.util.Objects;
 public class CalActivity extends AppCompatActivity {
     Button calButton;
     boolean calibrating;
-    int calStage;   // Keeps track of step in calibration process
+    int calStage;           // Keeps track of step in calibration process
+    int WAIT_TIME = 2000;   // Time to wait for Arduino to calibrate
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +47,7 @@ public class CalActivity extends AppCompatActivity {
                 calButton.setText("Wait...");
 
                 // Wait for Arduino to acknowledge calibration started
-                while (HydraSocket.readInt() != 1) {}
+                waitForArd();
 
                 // Enter stage 1
                 calStage ++;
@@ -62,7 +63,7 @@ public class CalActivity extends AppCompatActivity {
                 calButton.setText("Calibrating...");
 
                 // Wait for low calibration to finish
-                while (HydraSocket.readInt() != 2){}
+                waitForArd();
 
                 // Enter stage 2
                 calStage ++;
@@ -78,7 +79,7 @@ public class CalActivity extends AppCompatActivity {
                 calButton.setText("Calibrating...");
 
                 // Wait for high calibration to finish
-                while (HydraSocket.readInt() != 3){}
+                waitForArd();
 
                 // Allow user to recalibrate if desired
                 calStage = 0;
@@ -101,6 +102,16 @@ public class CalActivity extends AppCompatActivity {
             return;
         }
     }
+
+    // Delay for WAIT_TIME so that Arduino can process
+    private void waitForArd(){
+        try {
+            Thread.sleep(WAIT_TIME);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
 }
