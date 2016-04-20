@@ -199,10 +199,13 @@ void paramUpdate(int paramNum){
 // calibrate: sets ARM_HIGH and ARM_LOW to new values
 void calibrate(){
   long currentReading;
-
+  int CAL_DELAY = 1000;
+  
   Serial.println("Calibrate called");
   // Retract fingers to base before calibrating 
   retract();
+
+  delay(CAL_DELAY);
   
   // Stage 1
   waitForACK();         // Wait for "Relaxed" signal
@@ -211,7 +214,9 @@ void calibrate(){
   ARM_LOW = (int) currentReading;
   // Low threshold set
   Serial.println(ARM_LOW);
- 
+
+  delay(CAL_DELAY);
+  
   // Stage 2
   waitForACK();         // Wait for "Flexed" signal
   
@@ -221,6 +226,8 @@ void calibrate(){
   Serial.println(ARM_HIGH);
   
   bluetooth.flush();
+  
+  delay(CAL_DELAY);
 
   waitForACK();
 }

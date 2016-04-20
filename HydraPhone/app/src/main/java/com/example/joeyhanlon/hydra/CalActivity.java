@@ -31,62 +31,53 @@ public class CalActivity extends AppCompatActivity {
         // Stage 0 of calibration
         calStage = 0;
         calButton.setText("Calibrate.");
-        calButton.setBackgroundColor(Color.BLUE);
+        calButton.setBackgroundResource(R.color.colorPrimary);
 
     }
 
     private class CalButtonListener implements Button.OnClickListener{
         @Override
         public void onClick(View v) {
+            switch (calStage){
+                case 0:
+                    // Start calibration
+                    HydraSocket.write("C;");
 
-            // Start calibration
-            if(calStage == 0){
-                // Start calibration
-                HydraSocket.write("C;");
-                calButton.setBackgroundColor(Color.RED);
-                calButton.setText("Wait...");
+                    // Wait for Arduino to acknowledge calibration started
+                    waitForArd();
 
-                // Wait for Arduino to acknowledge calibration started
-                waitForArd();
+                    // Enter stage 1
+                    calStage ++;
+                    calButton.setBackgroundResource(R.color.colorPrimary);
+                    calButton.setText("Press when RELAXed.");
+                    break;
+                case 1: // Stage 1 - Low threshold calibration
+                    // On press, send ACK
+                    HydraSocket.writeACK();
 
-                // Enter stage 1
-                calStage ++;
-                calButton.setBackgroundColor(Color.BLUE);
-                calButton.setText("Press when RELAXed.");
+                    // Wait for low calibration to finish
+                    waitForArd();
+
+                    // Enter stage 2
+                    calStage ++;
+                    calButton.setBackgroundResource(R.color.colorPrimary);
+                    calButton.setText("Press when FLEXed.");
+                    break;
+                case 2: // Stage 2 - High threshold calibration
+                    // On press, send ACK
+                    HydraSocket.writeACK();
+
+                    // Wait for high calibration to finish
+                    waitForArd();
+
+                    HydraSocket.writeACK();
+
+                    // Allow user to recalibrate if desired
+                    calStage = 0;
+                    calButton.setBackgroundResource(R.color.colorPrimary);
+                    calButton.setText("Re-calibrate.");
+                    break;
             }
-
-            // Stage 1 - Low threshold calibration
-            if (calStage == 1){
-                // On press, send ACK
-                HydraSocket.write("1");
-                calButton.setBackgroundColor(Color.RED);
-                calButton.setText("Calibrating...");
-
-                // Wait for low calibration to finish
-                waitForArd();
-
-                // Enter stage 2
-                calStage ++;
-                calButton.setBackgroundColor(Color.BLUE);
-                calButton.setText("Press when FLEXed.");
-            }
-
-            // Stage 2 - High threshold calibration
-            if (calStage == 2){
-                // On press, send ACK
-                HydraSocket.write("1");
-                calButton.setBackgroundColor(Color.RED);
-                calButton.setText("Calibrating...");
-
-                // Wait for high calibration to finish
-                waitForArd();
-
-                // Allow user to recalibrate if desired
-                calStage = 0;
-                calButton.setBackgroundColor(Color.BLUE);
-                calButton.setText("Re-calibrate.");
-            }
-            // Do nothing if there is no message from Arduino or calibration cannot be started
         }
     }
 
@@ -105,6 +96,16 @@ public class CalActivity extends AppCompatActivity {
 
     // Delay for WAIT_TIME so that Arduino can process
     private void waitForArd(){
+        calButton.setBackgroundResource(R.color.colorAccent);
+        switch (calStage){
+            case 0:
+                calButton.setText("Wait...");
+                break;
+            case 1:case 2:
+                calButton.setText("Calibrating...");
+                break;
+        }
+
         try {
             Thread.sleep(WAIT_TIME);
         } catch (InterruptedException e) {

@@ -1,15 +1,15 @@
 // setupBluetooth: starts bluetooth serial comm, prepares bluetooth for device connection
 void setupBluetooth(){
-  pinMode(rxPin, INPUT);
-  pinMode(txPin, OUTPUT);
+  pinMode(RX_PIN, INPUT);
+  pinMode(TX_PIN, OUTPUT);
   bluetooth.begin(BTOOTH_BAUD);
 
-  // App sends acknowledgement of bluetooth connection
-  waitForACK();
+  // App sends acknowledgement when started
+  waitForSTART();
 }
 
 // readBluetooth: reads next Bluetooth message, calls appropriate command based on message indicator character
-// C = calibrate; else = parameter update
+// C = calibrate; int = paramUpdate; close message -> run setup
 void readBluetooth(){
   char msgType = bluetooth.read();
   Serial.print("msgType = ");
@@ -21,18 +21,48 @@ void readBluetooth(){
     int paramNum = msgType - '0';
     paramUpdate(paramNum);
   }
+  else if (msgType == CLOSE_CHAR){
+    bluetooth.flush();
+    setup();
+  }
   else {
     bluetooth.flush();
   }
 }
 
-// waitForACK(): continuously flushes bluetooth buffer until acknowledgement (a character '1') received
-void waitForACK(){
+// Wait for message from Hydra app
+void waitFor(int msgNum){
+  char done;
+  switch (msgNum){
+    // 0 is general ACK message
+    case 0:{
+      done = ACK_CHAR;
+    }
+    break;
+
+    // 1 is START message
+    case 1:{
+      done = START_CHAR;
+    }
+    break; 
+  }
+
+  // Wait for desired message
   while (true){
-    if (bluetooth.read() == 'X'){
-      Serial.println("ACK received");
+    if (bluetooth.read() == done){
+      Serial.println("Awaited msg received");
       bluetooth.flush();
       break;
     }
   }
+  
 }
+
+void waitForACK(){
+  waitFor(0);
+}
+
+void waitForSTART(){
+  waitFor(1);
+}
+

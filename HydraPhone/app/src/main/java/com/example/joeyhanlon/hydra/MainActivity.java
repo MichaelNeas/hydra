@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         modesListView.setOnItemClickListener(this);
 
         // TODO add all default modes to list
-        myModeManager.addNewMode("Point", false, 0.5f, 5.0f, 100, 0, 0, 5.0f, 0f, 0f);
+        myModeManager.addNewMode("Point", false, 0.5f, 5.0f, 0, 100, 100, 0f, 5.0f, 5.0f);
         myModeManager.addNewMode("Default Grip", true, 0.5f, 5.0f, 100, 100, 100, 5.0f, 5.0f, 5.0f);
 
     }
@@ -350,48 +350,12 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     public void onCheckedChanged(CompoundButton sw, boolean isChecked) {
         if (isChecked) {
             sendArduinoMessage("1=D;");
-            //disableSpeed();
-            //SEND_STRING[0] = "1=S;";
         }
         else {
             sendArduinoMessage("1=S;");
-            //enableSpeed();
-            //SEND_STRING[0] = "1=D;";
-        }
-
-        //updateSendString();
-        //send();
-    }
-
-    /*
-    public void enableSpeed() {
-        speedCard.setVisibility(View.VISIBLE);
-    }
-
-    public void disableSpeed() {
-        speedCard.setVisibility(View.GONE);
-    }
-
-    // Update debug text field with string to be sent
-    public void updateSendString() {
-        String toSet = "";
-        for (int i = 0; i < 5; i ++) {
-            toSet = toSet + SEND_STRING[i];
-        }
-        inputField.setText(toSet);
-    }
-
-    // send current SEND_STRING over the current BT connection
-    public void send() {
-        if(myThreadConnected!=null){
-            byte[] bytesToSend = inputField.getText().toString().getBytes();
-            myThreadConnected.write(bytesToSend);
-            inputField.setText("");
+            // TODO: allow break grip button
         }
     }
-    */
-
-
 
     // ----- /MAIN WINDOW METHODS -----
 
@@ -475,11 +439,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         inputField.setText(message);
         HydraSocket.write(message);
     }
-
-    // Return string sent by Arduino, used for calibration
-    /*public String readArduinoMessage(){
-        return HydraSocket.read();
-    }*/
     // ----- /BLUETOOTH COMM METHODS -----
 
 
@@ -521,6 +480,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
     @Override
     protected void onDestroy() {
+        HydraSocket.writeCLOSE();
         super.onDestroy();
     }
 
@@ -547,6 +507,9 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
                 connectedDeviceName.setText(name);
                 connectedDeviceAddress.setText(address);
 
+                // Acknowledge the bluetooth connection to Arduino
+                HydraSocket.writeSTART();
+
                 // Run calibration upon connection
                 // TODO CalActivity fix - works with Arduino calibrate method
                 Intent calIntent = new Intent(this, CalActivity.class);
@@ -555,6 +518,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
             }
             // No bluetooth device
             else {
+                HydraSocket.writeSTART();
                 Toast.makeText(MainActivity.this,
                         "No device connected.",
                         Toast.LENGTH_LONG).show();

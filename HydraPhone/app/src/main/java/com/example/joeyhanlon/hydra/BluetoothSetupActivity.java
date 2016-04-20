@@ -27,6 +27,8 @@ public class BluetoothSetupActivity extends AppCompatActivity implements View.On
     ArrayList<String> pairedDeviceArrayAdapter;
     Button btnBluetooth;
 
+    private boolean isConnecting;
+
     // Adapter to display more info in the paired device listview
     ArrayAdapter<String> pairedDeviceAdapter;
 
@@ -49,6 +51,8 @@ public class BluetoothSetupActivity extends AppCompatActivity implements View.On
 
         btnBluetooth = (Button)findViewById(R.id.buttonPair);
         btnBluetooth.setOnClickListener(this);
+
+        isConnecting = false;
 
         // ----- BT verification -----
 
@@ -130,6 +134,7 @@ public class BluetoothSetupActivity extends AppCompatActivity implements View.On
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view,
                                         int position, long id) {
+                    isConnecting = true;
                     BluetoothDevice device =
                             (BluetoothDevice) pairedDeviceArrayList.get(position);
                     Toast.makeText(BluetoothSetupActivity.this,
@@ -148,8 +153,20 @@ public class BluetoothSetupActivity extends AppCompatActivity implements View.On
                         // Remain in Bluetooth activity if connection fails
                         setResult(Activity.RESULT_CANCELED);
                     }
+                    isConnecting = false;
                 }
             });
+        }
+    }
+
+    public void onBackPressed(){
+        // Only exit if connection is not currently underway
+        if (!isConnecting){
+            finish();
+        }
+        // If connecting, disregard
+        else {
+            return;
         }
     }
 

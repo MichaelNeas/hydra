@@ -33,7 +33,7 @@ long reading;                           // Reading from EMS
 
 
 // BLUETOOTH COMMUNICATION VARIABLES
-SoftwareSerial bluetooth(rxPin, txPin);     // Software serial comm via bluetooth on rx/tx
+SoftwareSerial bluetooth(RX_PIN, TX_PIN);     // Software serial comm via bluetooth on rx/tx
 
 String defaultMsg = "1=D;2=0.5;3=5.0;4=100,100,100;5=5.0,5.0,5.0;"; // Default settings message
 

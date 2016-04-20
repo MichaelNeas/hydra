@@ -81,21 +81,21 @@ public class HydraSocket {
         }
     }
 
-    // Read integer from connected socket
-    // For calibration
-    public static int readInt(){
-        int result = 0;
-        // Only read messages if device is connected
-        if(HydraSocket.isConnected()) {
-            // Wait for message to be available
-            String message = myThreadBTCommunication.read();
-            while (message == null){
-                message = myThreadBTCommunication.read();
-            }
-            result = Integer.parseInt(message);
-        }
-        return result;
+    // Send acknowledgement message to Arduino
+    public static void writeACK(){
+        HydraSocket.write("X");
     }
+
+    // Send start message to Arduino
+    public static void writeSTART(){
+        HydraSocket.write("+");
+    }
+
+    // Send closing message to Arduino
+    public static void writeCLOSE(){
+        HydraSocket.write("-");
+    }
+
 
     // Thread used to create bluetooth connection
     private static class ThreadBTConnection extends Thread {

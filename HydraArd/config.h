@@ -6,8 +6,8 @@ const int servoPins[numServos] = {11, 12, 13};    // Arduino pins for Servo outp
                                                   // {Index, Outer, Thumb}
                                                   
 const int EMS_PIN = 14;                           // Arduino pin for EMG Sensor input
-const int rxPin = 2;                              // Arduino pin for reading from Bluetooth
-const int txPin = 3;                              // Arduino pin for writing to Bluetooth
+const int RX_PIN = 2;                             // Arduino pin for reading from Bluetooth
+const int TX_PIN = 3;                             // Arduino pin for writing to Bluetooth
 
 const int SERV_START[numServos]                   // Servo starting position
   = {1800, 1800, 1800};                           // {Index, Outer, Thumb}
@@ -21,3 +21,7 @@ const int NUM_READS = 200;                        // Number of readings to avera
 
 const int BTOOTH_BAUD = 9600;                     // Bluetooth baud rate
 const int maxMessageCount = 20;                   // Maximum character length of received parameter messages to handle errors
+
+const char ACK_CHAR = 'X';                        // Acknowledgement message from phone
+const char CLOSE_CHAR = '-';                      // Closed app message
+const char START_CHAR = '+';                      // App started message
