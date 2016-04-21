@@ -1,8 +1,9 @@
 package com.example.joeyhanlon.hydra;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
@@ -13,10 +14,9 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -25,13 +25,10 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements ListView.OnItemClickListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
-    // Child activity codes
-    private static final int BT_CONNECT = 3;
+    // Bluetooth activity code
+    private static final int BT_CONNECT = 1;
 
-    // Toolbar
-    Toolbar toolbar;
-
-    // Mode manager (getting real descriptive with the comments)
+    // Handles storing/setting of different modes
     ModeManager myModeManager;
 
     // The functional application window. Used to mask it during BT init and such.
@@ -48,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     // ----- Hydra UI Elements -----
 
 
-    // --- MODE CONTROL ---
+    // --- HYDRA CONTROL ---
 
     // List of Hydra Modes
     ListView modesListView;
@@ -56,10 +53,16 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     // Text showing current mode
     TextView currentModeText;
 
-    // Buttons to save and add modes
-    Button saveModeButton, addModeButton;
+    // Buttons to affect mode settings
+    ImageButton saveModeButton, addModeButton, resetModeButton;
 
-    // --- /MODE CONTROL ---
+    // Buttons to interact with arm
+    ImageButton calButton, breakButton;
+
+    // Button for bluetooth activity
+    ImageButton btoothButton;
+
+    // --- /HYDRA CONTROL ---
 
 
     // --- PARAMETER CONTROL ---
@@ -93,9 +96,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
     // ----- /Hydra Parameter UI Elements -----
 
-    // String array to be sent to the arm, initialized to default values
-    String[] SEND_STRING = {"1=D;","2=0.5;","3=5.0;","4=100,100,100;","5=5.0,5.0,5.0;"};
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,12 +107,9 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
         setContentView(R.layout.activity_main);
 
-
         // ----- MAIN WINDOW SETUP -----
         inputPane = (LinearLayout)findViewById(R.id.inputPane);
         inputField = (EditText)findViewById(R.id.input);
-
-        // TODO instantiate saveModeButton, newModeButton
 
         // Bluetooth info display
         connectedDeviceName = (TextView)findViewById(R.id.connectedDeviceName);
@@ -153,6 +150,15 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         writeDelSeekBar.setOnSeekBarChangeListener(this);
         writeDelIndicator = (TextView) findViewById(R.id.writeDelIndicator);
 
+        addModeButton = (ImageButton) findViewById(R.id.addModeButton);
+        saveModeButton = (ImageButton) findViewById(R.id.saveModeButton);
+        resetModeButton = (ImageButton) findViewById(R.id.resetModeButton);
+
+        calButton = (ImageButton) findViewById(R.id.calButton);
+        breakButton = (ImageButton) findViewById(R.id.breakButton);
+
+        btoothButton = (ImageButton) findViewById(R.id.btoothButton);
+
         // Create ModeManager to store list of modes
         myModeManager = new ModeManager();
 
@@ -170,21 +176,47 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
     // ----- MAIN WINDOW METHODS -----
 
-
-    // NEW mode selection
+    // Mode selection
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         setMode(myModeManager.getMode(position));
     }
 
 
-    // OnClick method for all buttons
+    // Button implementation
     @Override
     public void onClick(View view)
     {
         switch (view.getId())
         {
-            
+            // Add new mode
+            case R.id.addModeButton:
+                newHydraMode();
+                break;
+            // Reset stored settings of current mode
+            case R.id.resetModeButton:
+                setMode(myModeManager.getCurrentMode());
+                break;
+            // Save new settings to current mode
+            case R.id.saveModeButton:
+                saveHydraMode();
+                break;
+
+            // Start calibration activity
+            case R.id.calButton:
+                Intent calIntent = new Intent(this, CalActivity.class);
+                startActivity(calIntent);
+                break;
+            // Send acknowledgement to Ard to break grip if button is enabled
+            case R.id.breakButton:
+
+                break;
+
+            // Start Bluetooth activity
+            case R.id.btoothButton:
+                Intent btIntent = new Intent(this, BluetoothSetupActivity.class);
+                startActivityForResult(btIntent, BT_CONNECT);
+                break;
         }
     }
 
@@ -281,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
             case (R.id.actThreshSeekBar):
                 // Convert progress bar value
-                float param2 = (float) (((actThreshSeekBar.getProgress()*7) / 10) + 5);
+                float param2 = (float) (actThreshSeekBar.getProgress()*7f) / 10f + 5f;
                 // String of float value
                 String param2Str = Float.toString(param2);
                 message = "2=" + param2Str + ";";
@@ -319,10 +351,65 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     // ----- /MAIN WINDOW METHODS -----
 
     // ----- MODE MANAGING METHODS -----
+    private void newHydraMode(){
+        // Create blank mode
+        HydraMode mode = myModeManager.addNewBlankMode();
+
+        // Ask user for a name for the mode
+        getUserName(mode);
+
+        // Delete mode if user does not name it
+        if (mode.getName() == null){
+            myModeManager.delete(mode);
+        }
+        else {
+            // Set modes settings to those in UI
+            setCurrentSettings(mode);
+        }
+    }
+
     // Saves the set parameters for the current mode to its HydraMode class
     private void saveHydraMode(){
         HydraMode mode = myModeManager.getCurrentMode();
+        setCurrentSettings(mode);
+        sendArduinoMessage(mode.getModeString());
+    }
 
+    // Get user name for specified name
+    private void getUserName(HydraMode mode){
+
+        // Declared final so that dialog can set name
+        final HydraMode thisMode = mode;
+
+        // Pop-up dialog to get user name
+        AlertDialog.Builder popup = new AlertDialog.Builder(this);
+        popup.setTitle(R.string.NEWMODENAME_LABEL);
+
+        // User input
+        final EditText userInput = new EditText(this);
+        popup.setView(userInput);
+
+        // Set up the buttons
+        popup.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String name = userInput.getText().toString();
+
+                // Set name of the mode to user's string
+                thisMode.setName(name);
+            }
+        });
+        popup.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                thisMode.setName(null);
+            }
+        });
+    }
+
+    // Sets parameters of given mode to current user parameter settings
+    private void setCurrentSettings(HydraMode mode){
         // Dynamic or Static
         mode.setParam(1, dynSwitch.getShowText());
 
@@ -346,10 +433,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         mode.setParam(5, 1, param5b);
         float param5c = (float) (servoSpeedSeekBar2.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
         mode.setParam(5, 2, param5c);
-
-        //TODO store myModeManager in phone memory
-
-        sendArduinoMessage(mode.getModeString());
     }
 
     // Sets current mode to mode (updates UI, sends message)
@@ -399,36 +482,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         HydraSocket.write(message);
     }
     // ----- /BLUETOOTH COMM METHODS -----
-
-
-    // ----- OPTIONS MENU -----
-
-    // TODO setup options menu
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_calibrate) {
-            Intent calIntent = new Intent(this, CalActivity.class);
-            startActivity(calIntent);
-
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    // ----- /OPTIONS MENU -----
 
 
     @Override

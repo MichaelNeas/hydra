@@ -24,8 +24,16 @@ public class ModeManager {
         modes = new ArrayList<HydraMode>();
     }
 
+    // Add new empty mode to Hydra with specified name
+    public HydraMode addNewBlankMode(){
+        modes.add(new HydraMode());
+        HydraMode thisMode = modes.get(modes.size() - 1);
+        currentMode = thisMode;
+        return thisMode;
+    }
+
     // Add new mode to Hydra with specified name and settings
-    public void addNewMode(String name, boolean dynamic, float actThreshold, float writeDelay,
+    public HydraMode addNewMode(String name, boolean dynamic, float actThreshold, float writeDelay,
                            int gripDepthA, int gripDepthB, int gripDepthC,
                            float servoSpeedA, float servoSpeedB, float servoSpeedC){
 
@@ -34,7 +42,7 @@ public class ModeManager {
                 servoSpeedA, servoSpeedB, servoSpeedC));
         HydraMode thisMode = modes.get(modes.size() - 1);
         currentMode = thisMode;
-        //adapter.add(thisMode);
+        return thisMode;
     }
 
     // Adapter used to display modes in listview of main activity
@@ -51,7 +59,7 @@ public class ModeManager {
             HydraMode mode = modes.get(position);
             // Text view to display mode name
             TextView modeView = new TextView(getContext());
-            modeView.setText(mode.myName);
+            modeView.setText(mode.getName());
             return modeView;
         }
     }
@@ -61,21 +69,18 @@ public class ModeManager {
         adapter = new ModesAdapter(context, modes);
     }
 
+    // To assist UI display of modes
     public ModesAdapter getAdapter(){ return adapter; }
 
-    public ArrayList<HydraMode> getModes() { return modes; }
-
+    // Returns current Hydra mode
     public HydraMode getCurrentMode(){ return currentMode; }
 
-    public void setCurrentMode(HydraMode mode){
-        currentMode = mode;
-    }
+    // Sets the Hydra mode to be currently used
+    public void setCurrentMode(HydraMode mode){ currentMode = mode; }
 
+    // Gets mode pressed at given position in the list view
     public HydraMode getMode(int position) { return modes.get(position); }
 
-    public void setModeParam(int n, Object param){
-        currentMode.setParam(n, param);
-    }
-
-    public void setModeParam(int n, int servo, Object param) { currentMode.setParam(n, servo, param); }
+    // Delete specified mode
+    public void delete(HydraMode mode){ modes.remove(mode); }
 }

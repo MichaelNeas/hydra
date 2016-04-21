@@ -6,7 +6,7 @@ package com.example.joeyhanlon.hydra;
 
 public class HydraMode {
 
-    public String myName;           // Name of mode
+    private String myName;           // Name of mode
 
     static int NUM_SERVOS = 3;
 
@@ -36,6 +36,11 @@ public class HydraMode {
         _servoSpeed[0] = servoSpeedA;
         _servoSpeed[1] = servoSpeedB;
         _servoSpeed[2] = servoSpeedC;
+    }
+
+    // Empty mode constructor
+    public HydraMode(){
+        new HydraMode(null, true, 0.5f, 5.0f, 100, 100, 100, 5.0f, 5.0f, 5.0f);
     }
 
     // Return nth parameter string
@@ -114,4 +119,6 @@ public class HydraMode {
     public String getName() {
         return myName;
     }
+
+    public void setName(String name){ myName = name; }
 }
