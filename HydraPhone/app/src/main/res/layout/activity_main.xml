@@ -10,17 +10,7 @@
         android:layout_height="fill_parent"
         android:orientation="vertical">
 
-        <android.support.design.widget.AppBarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <include
-                android:id="@+id/toolbar"
-                layout="@layout/toolbar" />
-
-        </android.support.design.widget.AppBarLayout>
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -41,146 +31,200 @@
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
                 android:background="#FFFFFF"
-                android:elevation="1dp">
+                android:elevation="1dp"
+                android:id="@+id/controlPanel">
 
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.9">
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0px"
+                    android:layout_height="match_parent"
+                    android:id="@+id/modeSettings"
+                    android:layout_weight="2">
 
-                    <TextView
-                        android:id="@+id/currentModeText"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginTop="10dp"
-                        android:text="Action"
-                        android:textColor="@color/colorPrimaryText"
-                        android:textSize="20sp" />
+                        android:layout_gravity="center"
+                        android:id="@+id/hydraTitle">
 
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceLarge"
+                            android:text="@string/app_name"
+                            android:id="@+id/appTitle"
+                            android:layout_gravity="center" />
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/imageView" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/currentMode">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:text="@string/current_mode_label"
+                            android:id="@+id/currentModeLabel" />
+
+                        <TextView
+                            android:id="@+id/currentModeText"
+                            android:layout_width="fill_parent"
+                            android:layout_height="match_parent"
+                            android:text="Action"
+                            android:textColor="@color/colorPrimaryText"
+                            android:textSize="20sp" />
+                    </LinearLayout>
 
                     <ListView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="fill_parent"
                         android:id="@+id/modesListView"
                         android:layout_alignParentEnd="false"
                         android:layout_below="@+id/currentModeText" />
 
-                    <RadioGroup
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:id="@+id/actionList"
-                        android:checkedButton="@+id/selectedAction"
-                        android:layout_centerHorizontal="true"
-                        android:layout_below="@id/currentModeText"
-                        android:layout_marginBottom="10dp"
-                        android:visibility="gone">
+                </LinearLayout>
 
-                        <RadioButton
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/grip"
-                            android:paddingLeft="30dp"
-                            android:text="Grip"
-                            android:layout_weight="1"/>
-                        <RadioButton
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/pinch"
-                            android:paddingLeft="30dp"
-                            android:text="Pinch"
-                            android:layout_weight="1"/>
-                        <RadioButton
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/click"
-                            android:paddingLeft="30dp"
-                            android:text="Click"
-                            android:layout_weight="1"/>
-                        <RadioButton
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/point"
-                            android:paddingLeft="30dp"
-                            android:text="Point"
-                            android:layout_weight="1"/>
-                        <RadioButton
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:id="@+id/hook"
-                            android:paddingLeft="30dp"
-                            android:text="Hook"
-                            android:layout_weight="1"/>
-
-                    </RadioGroup>
-                </RelativeLayout>
-
-                <View
-                    android:id="@+id/innerLine"
-                    android:layout_width="1dp"
-                    android:layout_height="match_parent"
-                    android:background="#cfcfcf" />
-
-                <RelativeLayout
+                <LinearLayout
+                    android:orientation="vertical"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1.1">
+                    android:layout_height="match_parent"
+                    android:id="@+id/hydraPanel"
+                    android:layout_weight="3">
 
                     <LinearLayout
+                        android:orientation="horizontal"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:paddingTop="15dp"
-                        android:paddingLeft="15dp"
-                        android:paddingRight="15dp">
+                        android:layout_height="wrap_content"
+                        android:id="@+id/btoothControl">
 
-                        <RelativeLayout
-                            android:id="@+id/sendActionWindow"
-                            android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            android:background="@drawable/gesture_window_bkrd"
-                            android:layout_weight="1.6"
-                            android:gravity="center">
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:layout_marginLeft="5dp"
+                            android:id="@+id/btoothInfo"
+                            android:layout_weight="3">
 
-                        </RelativeLayout>
-
-                        <RelativeLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            android:layout_weight="0.4">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
+                            <TextView
+                                android:id="@+id/connectedDeviceName"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:layout_marginLeft="5dp"
-                                android:layout_centerVertical="true">
+                                android:text="[SelectedDev]"
+                                android:textColor="@color/colorPrimaryText"
+                                android:textSize="15sp" />
 
-                                <TextView
-                                    android:id="@+id/connectedDeviceName"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="[SelectedDev]"
-                                    android:textColor="@color/colorPrimaryText"
-                                    android:textSize="15sp" />
+                            <TextView
+                                android:id="@+id/connectedDeviceAddress"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="10dp"
+                                android:text="MA:CA:DD:RE:SS"
+                                android:textColor="@color/colorSecondaryText"
+                                android:textSize="15sp"
+                                android:paddingTop="5dp"/>
 
-                                <TextView
-                                    android:id="@+id/connectedDeviceAddress"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginLeft="10dp"
-                                    android:text="MA:CA:DD:RE:SS"
-                                    android:textColor="@color/colorSecondaryText"
-                                    android:textSize="15sp"
-                                    android:paddingTop="5dp"/>
+                        </LinearLayout>
 
-                            </LinearLayout>
-
-                        </RelativeLayout>
-
+                        <ImageButton
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:id="@+id/btoothButton"
+                            android:src="@drawable/ic_bluetooth"
+                            android:layout_weight="1" />
                     </LinearLayout>
 
-                </RelativeLayout>
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="fill_parent"
+                        android:id="@+id/settingsControl">
+
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="0px"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:id="@+id/modeButtons"
+                            android:gravity="center">
+
+                            <ImageButton
+                                android:layout_width="match_parent"
+                                android:layout_height="0px"
+                                android:id="@+id/addModeButton"
+                                android:layout_weight="1"
+                                android:src="@drawable/add_icon" />
+
+                            <ImageButton
+                                android:layout_width="match_parent"
+                                android:layout_height="0px"
+                                android:id="@+id/resetModeButton"
+                                android:layout_weight="1"
+                                android:src="@drawable/reset_icon" />
+
+                            <ImageButton
+                                android:layout_width="match_parent"
+                                android:layout_height="0px"
+                                android:id="@+id/saveModeButton"
+                                android:layout_weight="1"
+                                android:src="@drawable/save_icon" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0px"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:paddingTop="15dp"
+                            android:paddingLeft="15dp"
+                            android:paddingRight="15dp"
+                            android:id="@+id/hydraSettings"
+                            android:layout_weight="2">
+
+                            <RelativeLayout
+                                android:id="@+id/sendActionWindow"
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:background="@drawable/gesture_window_bkrd"
+                                android:layout_weight="1.6"
+                                android:gravity="center">
+
+                            </RelativeLayout>
+
+                            <LinearLayout
+                                android:orientation="horizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="0dp"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:id="@+id/hydraButtons">
+
+                                <ImageButton
+                                    android:layout_width="0dp"
+                                    android:layout_height="match_parent"
+                                    android:id="@+id/calButton"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/cal_icon"
+                                    android:adjustViewBounds="false"
+                                    android:layout_weight="1" />
+
+                                <ImageButton
+                                    android:layout_width="0dp"
+                                    android:layout_height="match_parent"
+                                    android:id="@+id/breakButton"
+                                    android:layout_weight="1"
+                                    android:src="@drawable/break_icon" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -674,17 +718,5 @@
     </LinearLayout>
 
     </LinearLayout>
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fabSave"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="-32dp"
-        android:layout_marginRight="30dp"
-        android:clickable="true"
-        app:layout_anchor="@id/sendActionWindow"
-        app:layout_anchorGravity="bottom|right|end"
-        android:src="@drawable/ic_send"
-        app:fabSize="normal" />
 
 </android.support.design.widget.CoordinatorLayout>

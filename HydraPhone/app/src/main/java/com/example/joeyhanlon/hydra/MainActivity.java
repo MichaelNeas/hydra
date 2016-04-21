@@ -23,7 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class MainActivity extends AppCompatActivity implements ListView.OnItemClickListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener, RadioGroup.OnCheckedChangeListener, CompoundButton.OnCheckedChangeListener {
+public class MainActivity extends AppCompatActivity implements ListView.OnItemClickListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
     // Child activity codes
     private static final int BT_CONNECT = 3;
@@ -39,7 +39,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
     // Debugging fields
     EditText inputField;
-    FloatingActionButton fab;
 
     // To display connected device info in main window
     TextView connectedDeviceName;
@@ -58,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     TextView currentModeText;
 
     // Buttons to save and add modes
-    Button saveModeButton, newModeButton;
+    Button saveModeButton, addModeButton;
 
     // --- /MODE CONTROL ---
 
@@ -108,21 +107,12 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
         setContentView(R.layout.activity_main);
 
-        // Initialize toolbar
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setTitle(null);
 
         // ----- MAIN WINDOW SETUP -----
         inputPane = (LinearLayout)findViewById(R.id.inputPane);
         inputField = (EditText)findViewById(R.id.input);
 
         // TODO instantiate saveModeButton, newModeButton
-
-        //actionList = (RadioGroup) findViewById(R.id.actionList);
-        // Relay information regarding selected action on click
-        //actionList.setOnCheckedChangeListener(this);
 
         // Bluetooth info display
         connectedDeviceName = (TextView)findViewById(R.id.connectedDeviceName);
@@ -163,9 +153,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         writeDelSeekBar.setOnSeekBarChangeListener(this);
         writeDelIndicator = (TextView) findViewById(R.id.writeDelIndicator);
 
-        //fab = (FloatingActionButton)findViewById(R.id.fabSave);
-        //fab.setOnClickListener(this);
-
         // Create ModeManager to store list of modes
         myModeManager = new ModeManager();
 
@@ -191,41 +178,13 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     }
 
 
-    // Gesture selection, planning to get rid of
-    @Override
-    public void onCheckedChanged(RadioGroup rg, int checkedId) {
-        switch (rg.getCheckedRadioButtonId()) {
-            case (R.id.grip):
-                break;
-            case (R.id.pinch):
-                break;
-            case (R.id.click):
-                break;
-            case (R.id.point):
-                break;
-            case (R.id.hook):
-                break;
-            default:
-                break;
-        }
-    }
-
     // OnClick method for all buttons
     @Override
     public void onClick(View view)
     {
         switch (view.getId())
         {
-            case (R.id.fabSave):
-
-                //sendArduinoMessage("1=D;2=0.5;3=5.0;4=100,100,100;5=5.0,5.0,5.0;");
-
-                // Save currently selected mode with currently selected settings
-                saveHydraMode();
-                break;
-
-            // TODO new mode button
-            // myModeManager.addNewBlankMode();
+            
         }
     }
 

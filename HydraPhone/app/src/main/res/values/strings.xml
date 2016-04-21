@@ -20,4 +20,5 @@
     <string name="NEWMODE_TEXT">+</string>
     <string name="SAVEMODE_TEXT">Save...</string>
     <string name="title_activity_bluetooth_setup">BluetoothSetupActivity</string>
+    <string name="current_mode_label">Current Mode:</string>
 </resources>
