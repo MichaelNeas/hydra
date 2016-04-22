@@ -4,8 +4,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -22,6 +20,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Map;
+
 
 public class MainActivity extends AppCompatActivity implements ListView.OnItemClickListener, SeekBar.OnSeekBarChangeListener, View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
@@ -31,9 +31,11 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     // Handles storing/setting of different modes
     ModeManager myModeManager;
 
-    // Phone memory access
-    SharedPreferences sharedPref;
-    Editor editor;
+    // Phone memory storage manager
+    MemoryManager myMemoryManager;
+    Map<String, ?> modesInMemory;
+    // To parse java objects as [json] strings
+    GsonParser gson;
 
     // The functional application window. Used to mask it during BT init and such.
     LinearLayout inputPane;
@@ -171,24 +173,36 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         // Create ModeManager to store list of modes
         myModeManager = new ModeManager(this.getApplicationContext());
 
+        // Instantiate memory manager with activity context
+        myMemoryManager = new MemoryManager(getApplicationContext());
+        gson = new GsonParser();
+
         // Set up adapter for list of modes
         myModeManager.createAdapter(this);
         modesListView.setAdapter(myModeManager.getAdapter());
         modesListView.setOnItemClickListener(this);
 
-        // TODO add all default modes to list
+        myModeManager.addNewMode("Hi", false, 0.5f, 5.0f, 0, 100, 100, 0f, 5.0f, 5.0f);
 
-        /* get all entires stored in memory, will work into it's own method
+        HydraMode test1 = new HydraMode();
+        test1.setName("Point");
+        myMemoryManager.writeToMemory(test1.getName(), gson.toJson(test1));
 
-        Map<String, ?> allEntries = prefA.getAll();
-        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-            Log.d("map values", entry.getKey() + ": " + entry.getValue().toString());
+        HydraMode test2 = new HydraMode();
+        test1.setName("Click");
+        myMemoryManager.writeToMemory(test1.getName(), gson.toJson(test1));
+
+        modesInMemory = myMemoryManager.getAllFromMemory();
+        for (Map.Entry<String, ?> entry : modesInMemory.entrySet()) {
+            String json = entry.getValue().toString();
+            HydraMode temp = (HydraMode) gson.toObject(json, HydraMode.class);
+            myModeManager.addMode(temp);
         }
 
-        */
-
-        myModeManager.addNewMode("Point", false, 0.5f, 5.0f, 0, 100, 100, 0f, 5.0f, 5.0f);
-        myModeManager.addNewMode("Default Grip", true, 0.5f, 5.0f, 100, 100, 100, 5.0f, 5.0f, 5.0f);
+        //writeModeToMemory("Point");
+        //writeModeToMemory("Grip");
+        //writeModeToMemory("Click");
+        //myModeManager.addNewMode("Default Grip", true, 0.5f, 5.0f, 100, 100, 100, 5.0f, 5.0f, 5.0f);
 
     }
 
@@ -389,6 +403,8 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
                         HydraMode mode = myModeManager.addNewBlankMode();
                         mode.setName(inputString);
+
+                        myMemoryManager.writeToMemory(mode.getName(), gson.toJson(mode));
 
                         //commented out because if the device isnt connected to BT app crashes
                         //setCurrentSettings(mode);

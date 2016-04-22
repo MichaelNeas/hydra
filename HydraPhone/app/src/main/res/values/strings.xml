@@ -22,4 +22,6 @@
     <string name="title_activity_bluetooth_setup">BluetoothSetupActivity</string>
     <string name="current_mode_label">Current Mode:</string>
     <string name="NEWMODENAME_LABEL">Mode name:</string>
+
+    <string name="preference_file_name">modes</string>
 </resources>

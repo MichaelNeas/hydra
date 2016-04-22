@@ -2,16 +2,12 @@ package com.example.joeyhanlon.hydra;
 
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Keeps list of modes, saves those created by the user
@@ -22,22 +18,10 @@ public class ModeManager {
     private HydraMode currentMode;
     private ModesAdapter adapter;
 
-    // Phone memory utilities
-    private SharedPreferences sharedPrefs;
-    private Editor editor;
 
     public ModeManager(Context context){
         currentMode = null;
         modes = new ArrayList<HydraMode>();
-
-        sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
-        editor = sharedPrefs.edit();
-
-        Map<String, ?> allEntries = sharedPrefs.getAll();
-        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-            // need to add mode based on title and string of parameters
-            // this.addMode(entry.getKey() , entry.getValue());
-        }
     }
 
     // Add new empty mode to Hydra with specified name
@@ -45,8 +29,11 @@ public class ModeManager {
         modes.add(new HydraMode());
         HydraMode thisMode = modes.get(modes.size() - 1);
         currentMode = thisMode;
-        writeModeToMemory(thisMode);
         return thisMode;
+    }
+
+    public void addMode(HydraMode hm) {
+        modes.add(hm);
     }
 
     // Add new mode to Hydra with specified name and settings
@@ -59,7 +46,6 @@ public class ModeManager {
                 servoSpeedA, servoSpeedB, servoSpeedC));
         HydraMode thisMode = modes.get(modes.size() - 1);
         currentMode = thisMode;
-        writeModeToMemory(thisMode);
         return thisMode;
     }
 
@@ -80,12 +66,6 @@ public class ModeManager {
             modeView.setText(mode.getName());
             return modeView;
         }
-    }
-
-    public void writeModeToMemory(HydraMode mode) {
-        // Store as key value pair name -> modeString
-        editor.putString(mode.getName(), mode.getModeString());
-        editor.commit();
     }
 
     // Instantiates adapter for modes manager in given context
