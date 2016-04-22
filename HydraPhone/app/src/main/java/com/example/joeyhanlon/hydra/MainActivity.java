@@ -1,17 +1,17 @@
 package com.example.joeyhanlon.hydra;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -30,6 +30,10 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
     // Handles storing/setting of different modes
     ModeManager myModeManager;
+
+    // Phone memory access
+    SharedPreferences sharedPref;
+    Editor editor;
 
     // The functional application window. Used to mask it during BT init and such.
     LinearLayout inputPane;
@@ -151,16 +155,21 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         writeDelIndicator = (TextView) findViewById(R.id.writeDelIndicator);
 
         addModeButton = (ImageButton) findViewById(R.id.addModeButton);
+        addModeButton.setOnClickListener(this);
         saveModeButton = (ImageButton) findViewById(R.id.saveModeButton);
+        saveModeButton.setOnClickListener(this);
         resetModeButton = (ImageButton) findViewById(R.id.resetModeButton);
+        resetModeButton.setOnClickListener(this);
 
         calButton = (ImageButton) findViewById(R.id.calButton);
+        calButton.setOnClickListener(this);
         breakButton = (ImageButton) findViewById(R.id.breakButton);
+        breakButton.setOnClickListener(this);
 
         btoothButton = (ImageButton) findViewById(R.id.btoothButton);
 
         // Create ModeManager to store list of modes
-        myModeManager = new ModeManager();
+        myModeManager = new ModeManager(this.getApplicationContext());
 
         // Set up adapter for list of modes
         myModeManager.createAdapter(this);
@@ -168,6 +177,16 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         modesListView.setOnItemClickListener(this);
 
         // TODO add all default modes to list
+
+        /* get all entires stored in memory, will work into it's own method
+
+        Map<String, ?> allEntries = prefA.getAll();
+        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+            Log.d("map values", entry.getKey() + ": " + entry.getValue().toString());
+        }
+
+        */
+
         myModeManager.addNewMode("Point", false, 0.5f, 5.0f, 0, 100, 100, 0f, 5.0f, 5.0f);
         myModeManager.addNewMode("Default Grip", true, 0.5f, 5.0f, 100, 100, 100, 5.0f, 5.0f, 5.0f);
 
@@ -352,20 +371,37 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
     // ----- MODE MANAGING METHODS -----
     private void newHydraMode(){
-        // Create blank mode
-        HydraMode mode = myModeManager.addNewBlankMode();
 
-        // Ask user for a name for the mode
-        getUserName(mode);
+        // Pop-up dialog to get user name
+        AlertDialog.Builder popup = new AlertDialog.Builder(this);
+        popup.setTitle(R.string.NEWMODENAME_LABEL);
 
-        // Delete mode if user does not name it
-        if (mode.getName() == null){
-            myModeManager.delete(mode);
-        }
-        else {
-            // Set modes settings to those in UI
-            setCurrentSettings(mode);
-        }
+        LayoutInflater inflater = this.getLayoutInflater();
+        popup.setView(inflater.inflate(R.layout.new_mode_popup, null))
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        Dialog f = (Dialog) dialog;
+                        EditText nameInput = (EditText) f.findViewById(R.id.nameInput);
+
+                        String inputString = nameInput.getText().toString();
+
+                        HydraMode mode = myModeManager.addNewBlankMode();
+                        mode.setName(inputString);
+
+                        //commented out because if the device isnt connected to BT app crashes
+                        //setCurrentSettings(mode);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+        popup.create().show();
     }
 
     // Saves the set parameters for the current mode to its HydraMode class
@@ -373,39 +409,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         HydraMode mode = myModeManager.getCurrentMode();
         setCurrentSettings(mode);
         sendArduinoMessage(mode.getModeString());
-    }
-
-    // Get user name for specified name
-    private void getUserName(HydraMode mode){
-
-        // Declared final so that dialog can set name
-        final HydraMode thisMode = mode;
-
-        // Pop-up dialog to get user name
-        AlertDialog.Builder popup = new AlertDialog.Builder(this);
-        popup.setTitle(R.string.NEWMODENAME_LABEL);
-
-        // User input
-        final EditText userInput = new EditText(this);
-        popup.setView(userInput);
-
-        // Set up the buttons
-        popup.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String name = userInput.getText().toString();
-
-                // Set name of the mode to user's string
-                thisMode.setName(name);
-            }
-        });
-        popup.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-                thisMode.setName(null);
-            }
-        });
     }
 
     // Sets parameters of given mode to current user parameter settings

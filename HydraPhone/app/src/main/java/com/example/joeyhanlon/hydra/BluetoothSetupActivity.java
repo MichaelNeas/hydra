@@ -174,7 +174,16 @@ public class BluetoothSetupActivity extends AppCompatActivity implements View.On
     public void onClick(View v) {
         switch(v.getId()){
             case (R.id.buttonPair):
-                // TODO implement bluetooth pairing button
+
+                // bypass bluetooth screen, temporary for debugging
+                finish();
+
+                // Open phone default bluetooth device menu
+                /*
+                Intent intentOpenBluetoothSettings = new Intent();
+                intentOpenBluetoothSettings.setAction(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
+                startActivity(intentOpenBluetoothSettings);
+                */
         }
     }
 
