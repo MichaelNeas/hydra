@@ -38,9 +38,45 @@ public class HydraMode {
         _servoSpeed[2] = servoSpeedC;
     }
 
+    public HydraMode(String name, boolean dynamic, float actThreshold, float writeDelay,
+                     int[] gripDepth, float[] servoSpeed){
+
+        myName = name;
+        _dynamic = dynamic;
+        _actThreshold = actThreshold;
+        _writeDelay = writeDelay;
+        _gripDepth = gripDepth;
+        _servoSpeed = servoSpeed;
+    }
+
+    public HydraMode(HydraMode hm) {
+        myName = hm.getName();
+        _dynamic = (boolean) hm.getParam(1);
+        _actThreshold = (float) hm.getParam(2);
+        _writeDelay = (float) hm.getParam(3);
+        _gripDepth = (int[]) hm.getParam(4);
+        _servoSpeed = (float[]) hm.getParam(5);
+    }
+
     // Empty mode constructor
     public HydraMode(){
-        new HydraMode(null, true, 0.5f, 5.0f, 100, 100, 100, 5.0f, 5.0f, 5.0f);
+
+        myName = "";
+        _dynamic = true;
+        _actThreshold = 0.5f;
+        _writeDelay = 5.0f;
+
+        _gripDepth = new int[NUM_SERVOS];
+        _gripDepth[0] = 100;
+        _gripDepth[1] = 100;
+        _gripDepth[2] = 100;
+
+        _servoSpeed = new float[NUM_SERVOS];
+        _servoSpeed[0] = 5.0f;
+        _servoSpeed[1] = 5.0f;
+        _servoSpeed[2] = 5.0f;
+
+        //new HydraMode("", true, 0.5f, 5.0f, 100, 100, 100, 5.0f, 5.0f, 5.0f);
     }
 
     // Return nth parameter string

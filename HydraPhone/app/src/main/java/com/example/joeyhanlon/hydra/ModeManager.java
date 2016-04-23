@@ -32,8 +32,11 @@ public class ModeManager {
         return thisMode;
     }
 
-    public void addMode(HydraMode hm) {
+    public HydraMode addMode(HydraMode hm) {
         modes.add(hm);
+        HydraMode thisMode = modes.get(modes.size() - 1);
+        currentMode = thisMode;
+        return thisMode;
     }
 
     // Add new mode to Hydra with specified name and settings

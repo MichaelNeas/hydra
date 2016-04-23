@@ -20,6 +20,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import java.util.Map;
 
 
@@ -35,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     MemoryManager myMemoryManager;
     Map<String, ?> modesInMemory;
     // To parse java objects as [json] strings
-    GsonParser gson;
+    Gson gson;
 
     // The functional application window. Used to mask it during BT init and such.
     LinearLayout inputPane;
@@ -174,35 +176,42 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         myModeManager = new ModeManager(this.getApplicationContext());
 
         // Instantiate memory manager with activity context
-        myMemoryManager = new MemoryManager(getApplicationContext());
-        gson = new GsonParser();
+        myMemoryManager = new MemoryManager(this.getApplicationContext());
+        gson = new Gson();
 
         // Set up adapter for list of modes
         myModeManager.createAdapter(this);
         modesListView.setAdapter(myModeManager.getAdapter());
         modesListView.setOnItemClickListener(this);
 
-        myModeManager.addNewMode("Hi", false, 0.5f, 5.0f, 0, 100, 100, 0f, 5.0f, 5.0f);
+        // Mode testing ----------
 
-        HydraMode test1 = new HydraMode();
-        test1.setName("Point");
-        myMemoryManager.writeToMemory(test1.getName(), gson.toJson(test1));
+        myModeManager.addNewMode("Init", false, 0.5f, 5.0f, 0, 100, 100, 0f, 5.0f, 5.0f);
 
-        HydraMode test2 = new HydraMode();
-        test1.setName("Click");
-        myMemoryManager.writeToMemory(test1.getName(), gson.toJson(test1));
+        // TODO MODE NOT BEING STORED PROPERLY WITH GSON NEED TO FIX IT
 
         modesInMemory = myMemoryManager.getAllFromMemory();
+
+        // Only add default modes if they do not already exist in the memory map
+        if (modesInMemory.isEmpty()) {
+            HydraMode defaultGrip = new HydraMode();
+            defaultGrip.setName("Default Grip");
+            myMemoryManager.writeToMemory(defaultGrip.getName(), gson.toJson(defaultGrip));
+
+            HydraMode test1 = new HydraMode();
+            test1.setName("Click");
+            myMemoryManager.writeToMemory(test1.getName(), gson.toJson(test1));
+        }
+
+        // Load all modes in memory and add them to the mode manager
         for (Map.Entry<String, ?> entry : modesInMemory.entrySet()) {
             String json = entry.getValue().toString();
-            HydraMode temp = (HydraMode) gson.toObject(json, HydraMode.class);
+            HydraMode temp = gson.fromJson(json, HydraMode.class);
             myModeManager.addMode(temp);
         }
 
-        //writeModeToMemory("Point");
-        //writeModeToMemory("Grip");
-        //writeModeToMemory("Click");
-        //myModeManager.addNewMode("Default Grip", true, 0.5f, 5.0f, 100, 100, 100, 5.0f, 5.0f, 5.0f);
+
+        // ----------
 
     }
 
@@ -424,7 +433,8 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     private void saveHydraMode(){
         HydraMode mode = myModeManager.getCurrentMode();
         setCurrentSettings(mode);
-        sendArduinoMessage(mode.getModeString());
+        // shouldn't need to send here, as arduino is likely updated already after settings are changed
+        //sendArduinoMessage(mode.getModeString());
     }
 
     // Sets parameters of given mode to current user parameter settings
@@ -506,7 +516,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     @Override
     protected void onStart() {
         super.onStart();
-        setMode(myModeManager.getCurrentMode());
+        //setMode(myModeManager.getCurrentMode());
     }
 
     @Override
