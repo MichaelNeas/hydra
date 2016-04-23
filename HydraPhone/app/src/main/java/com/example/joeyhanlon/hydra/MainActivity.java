@@ -324,6 +324,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
             case (R.id.servoSpeedSeekBar0):
             case (R.id.servoSpeedSeekBar1):
             case (R.id.servoSpeedSeekBar2):
+
                 // Called for all servoSpeed cases as a result of not breaking between them
                 // Convert progress bar values
                 float param5a = (float) ((servoSpeedSeekBar0.getProgress() / 11) + 1);
@@ -433,8 +434,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     private void saveHydraMode(){
         HydraMode mode = myModeManager.getCurrentMode();
         setCurrentSettings(mode);
-        // shouldn't need to send here, as arduino is likely updated already after settings are changed
-        //sendArduinoMessage(mode.getModeString());
+        myMemoryManager.writeToMemory(mode.getName(), gson.toJson(mode));
     }
 
     // Sets parameters of given mode to current user parameter settings
@@ -443,11 +443,11 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         mode.setParam(1, dynSwitch.getShowText());
 
         // Action threshold
-        float param2 = (float) (actThreshSeekBar.getProgress()/100) * (float) (0.75 - 0.05) + (float) 0.05;
+        float param2 = (float) (((actThreshSeekBar.getProgress()*7) / 10) + 5);
         mode.setParam(2, param2);
 
         // Write delay
-        float param3 = (float) (writeDelSeekBar.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
+        float param3 = (float) (writeDelSeekBar.getProgress() / 10);
         mode.setParam(3, param3);
 
         // Grip depth
@@ -456,11 +456,11 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         mode.setParam(4, 2, gripDepthSeekBar2.getProgress());
 
         // Servo speed
-        float param5a = (float) (servoSpeedSeekBar0.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
+        float param5a = Float.parseFloat(servoSpeedIndicator0.getText().toString());
         mode.setParam(5, 0, param5a);
-        float param5b = (float) (servoSpeedSeekBar1.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
+        float param5b = Float.parseFloat(servoSpeedIndicator1.getText().toString());
         mode.setParam(5, 1, param5b);
-        float param5c = (float) (servoSpeedSeekBar2.getProgress()/100) * (float) (10.0 - 1.0) + (float) 1.0;
+        float param5c = Float.parseFloat(servoSpeedIndicator2.getText().toString());
         mode.setParam(5, 2, param5c);
     }
 
@@ -473,7 +473,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         // Dynamic or Static
         dynSwitch.setShowText((boolean) mode.getParam(1));
 
-        // TODO implement missing cards
         //Action threshold
         int progAT = (int) Math.round( 100 * ( (float) mode.getParam(2) / (0.75 - 0.05)) );
         actThreshSeekBar.setProgress(progAT);

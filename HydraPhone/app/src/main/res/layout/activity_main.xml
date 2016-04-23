@@ -351,6 +351,7 @@
                                     android:textSize="18sp"
                                     android:textColor="#FFFFFF"
                                     android:padding="8dp"
+                                    android:width="50dp"
                                     android:background="@drawable/value_indicator"/>
                             </LinearLayout>
 
@@ -386,6 +387,7 @@
                                     android:textSize="18sp"
                                     android:textColor="#FFFFFF"
                                     android:padding="8dp"
+                                    android:width="50dp"
                                     android:background="@drawable/value_indicator"/>
                             </LinearLayout>
 
@@ -421,6 +423,7 @@
                                     android:textSize="18sp"
                                     android:textColor="#FFFFFF"
                                     android:padding="8dp"
+                                    android:width="50dp"
                                     android:background="@drawable/value_indicator"/>
                             </LinearLayout>
 
