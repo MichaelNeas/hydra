@@ -130,6 +130,9 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         servoSpeedSeekBar0 = (SeekBar)findViewById(R.id.servoSpeedSeekBar0);
         servoSpeedSeekBar1 = (SeekBar)findViewById(R.id.servoSpeedSeekBar1);
         servoSpeedSeekBar2 = (SeekBar)findViewById(R.id.servoSpeedSeekBar2);
+        servoSpeedSeekBar0.setMax(90);
+        servoSpeedSeekBar1.setMax(90);
+        servoSpeedSeekBar2.setMax(90);
         servoSpeedIndicator0 = (TextView)findViewById(R.id.servoSpeedIndicator0);
         servoSpeedIndicator1 = (TextView)findViewById(R.id.servoSpeedIndicator1);
         servoSpeedIndicator2 = (TextView)findViewById(R.id.servoSpeedIndicator2);
@@ -151,10 +154,12 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         dynSwitch.setOnCheckedChangeListener(this);
 
         actThreshSeekBar = (SeekBar) findViewById(R.id.actThreshSeekBar);
+        actThreshSeekBar.setMax(70);
         actThreshSeekBar.setOnSeekBarChangeListener(this);
         actThreshIndicator = (TextView) findViewById(R.id.actThreshIndicator);
 
         writeDelSeekBar = (SeekBar) findViewById(R.id.writeDelSeekBar);
+        writeDelSeekBar.setMax(90);
         writeDelSeekBar.setOnSeekBarChangeListener(this);
         writeDelIndicator = (TextView) findViewById(R.id.writeDelIndicator);
 
@@ -184,31 +189,23 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         modesListView.setAdapter(myModeManager.getAdapter());
         modesListView.setOnItemClickListener(this);
 
-        // Mode testing ----------
+        // Default mode, always hard coded to ensure there is always a working mode (not in memory)
+        myModeManager.addNewMode("Default Grip", false, 0.5f, 5.0f, 100, 100, 100, 5.0f, 5.0f, 5.0f);
 
-        myModeManager.addNewMode("Init", false, 0.5f, 5.0f, 0, 100, 100, 0f, 5.0f, 5.0f);
-
-        // TODO MODE NOT BEING STORED PROPERLY WITH GSON NEED TO FIX IT
-
+        // retrieve map of all modes in memory
         modesInMemory = myMemoryManager.getAllFromMemory();
 
-        // Only add default modes if they do not already exist in the memory map
-        if (modesInMemory.isEmpty()) {
-            HydraMode defaultGrip = new HydraMode();
-            defaultGrip.setName("Default Grip");
-            myMemoryManager.writeToMemory(defaultGrip.getName(), gson.toJson(defaultGrip));
-
-            HydraMode test1 = new HydraMode();
-            test1.setName("Click");
-            myMemoryManager.writeToMemory(test1.getName(), gson.toJson(test1));
+        // Load all modes in memory if any exist and add them to the mode manager
+        if (!modesInMemory.isEmpty()) {
+            for (Map.Entry<String, ?> entry : modesInMemory.entrySet()) {
+                String json = entry.getValue().toString();
+                HydraMode temp = gson.fromJson(json, HydraMode.class);
+                myModeManager.addMode(temp);
+            }
         }
 
-        // Load all modes in memory and add them to the mode manager
-        for (Map.Entry<String, ?> entry : modesInMemory.entrySet()) {
-            String json = entry.getValue().toString();
-            HydraMode temp = gson.fromJson(json, HydraMode.class);
-            myModeManager.addMode(temp);
-        }
+        // Always have default grip selected initially
+        setMode(myModeManager.getMode(0));
 
 
         // ----------
@@ -273,36 +270,32 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         write delay 0 to 10
         */
 
-        String speedDisplay = Integer.toString((progressValue / 11) + 1);
-        String depthDisplay = Integer.toString(progressValue) + "%";
 
         switch (seekBar.getId()) {
 
             case (R.id.servoSpeedSeekBar0):
-                servoSpeedIndicator0.setText(speedDisplay);
+                servoSpeedIndicator0.setText(Float.toString(((float)progressValue) / 10f));
                 break;
             case (R.id.servoSpeedSeekBar1):
-                servoSpeedIndicator1.setText(speedDisplay);
+                servoSpeedIndicator1.setText(Float.toString(((float)progressValue) / 10f));
                 break;
             case (R.id.servoSpeedSeekBar2):
-                servoSpeedIndicator2.setText(speedDisplay);
+                servoSpeedIndicator2.setText(Float.toString(((float)progressValue) / 10f));
                 break;
             case (R.id.gripDepthSeekBar0):
-                gripDepthIndicator0.setText(depthDisplay);
+                gripDepthIndicator0.setText(progressValue + "%");
                 break;
             case (R.id.gripDepthSeekBar1):
-                gripDepthIndicator1.setText(depthDisplay);
+                gripDepthIndicator1.setText(progressValue + "%");
                 break;
             case (R.id.gripDepthSeekBar2):
-                gripDepthIndicator2.setText(depthDisplay);
+                gripDepthIndicator2.setText(progressValue + "%");
                 break;
             case (R.id.actThreshSeekBar):
-                String sensDisplay = Integer.toString(((progressValue*7) / 10) + 5) + "%";
-                actThreshIndicator.setText(sensDisplay);
+                actThreshIndicator.setText(progressValue + "%");
                 break;
             case (R.id.writeDelSeekBar):
-                String delDisplay = Integer.toString(progressValue / 10);
-                writeDelIndicator.setText(delDisplay);
+                writeDelIndicator.setText(Float.toString(((float)progressValue) / 10f));
                 break;
 
             default:
@@ -316,8 +309,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     @Override
     public void onStopTrackingTouch (SeekBar seekBar) {
 
-        String message = "";        // Message to build for Arduino
-        boolean indicatorSet = false;       // tracks if indicator has been set (shortens the statement space)
+        String message = "";                // Message to build for Arduino
 
         switch (seekBar.getId()) {
 
@@ -327,14 +319,14 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
                 // Called for all servoSpeed cases as a result of not breaking between them
                 // Convert progress bar values
-                float param5a = (float) ((servoSpeedSeekBar0.getProgress() / 11) + 1);
-                float param5b = (float) ((servoSpeedSeekBar1.getProgress() / 11) + 1);
-                float param5c = (float) ((servoSpeedSeekBar2.getProgress() / 11) + 1);
+                float param5a = (float) servoSpeedSeekBar0.getProgress() + 10f;
+                float param5b = (float) servoSpeedSeekBar1.getProgress() + 10f;
+                float param5c = (float) servoSpeedSeekBar2.getProgress() + 10f;
 
                 // Convert each speed value to string
-                String param5aStr = Float.toString(param5a);
-                String param5bStr = Float.toString(param5b);
-                String param5cStr = Float.toString(param5c);
+                String param5aStr = Float.toString(param5a/10f);
+                String param5bStr = Float.toString(param5b/10f);
+                String param5cStr = Float.toString(param5c/10f);
 
                 // Message includes each Servo's speed value
                 message = "5=" + param5aStr + "," + param5bStr + "," + param5cStr + ";";
@@ -356,17 +348,17 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
             case (R.id.actThreshSeekBar):
                 // Convert progress bar value
-                float param2 = (float) (actThreshSeekBar.getProgress()*7f) / 10f + 5f;
+                float param2 = (float) actThreshSeekBar.getProgress() + 5f;
                 // String of float value
-                String param2Str = Float.toString(param2);
+                String param2Str = Float.toString(param2/10f);
                 message = "2=" + param2Str + ";";
                 break;
 
             case (R.id.writeDelSeekBar):
                 // Convert progress bar value
-                float param3 = (float) (writeDelSeekBar.getProgress() / 10);
+                float param3 = (float) writeDelSeekBar.getProgress() + 10f;
                 // String of float value
-                String param3Str = Float.toString(param3);
+                String param3Str = Float.toString(param3/10f);
                 message = "3=" + param3Str + ";";
                 break;
 
@@ -443,11 +435,11 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         mode.setParam(1, dynSwitch.getShowText());
 
         // Action threshold
-        float param2 = (float) (((actThreshSeekBar.getProgress()*7) / 10) + 5);
+        float param2 = (actThreshSeekBar.getProgress() / 10f);
         mode.setParam(2, param2);
 
         // Write delay
-        float param3 = (float) (writeDelSeekBar.getProgress() / 10);
+        float param3 = (writeDelSeekBar.getProgress() / 10f);
         mode.setParam(3, param3);
 
         // Grip depth
@@ -456,11 +448,11 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         mode.setParam(4, 2, gripDepthSeekBar2.getProgress());
 
         // Servo speed
-        float param5a = Float.parseFloat(servoSpeedIndicator0.getText().toString());
+        float param5a = (servoSpeedSeekBar0.getProgress() / 10f);
         mode.setParam(5, 0, param5a);
-        float param5b = Float.parseFloat(servoSpeedIndicator1.getText().toString());
+        float param5b = (servoSpeedSeekBar1.getProgress() / 10f);
         mode.setParam(5, 1, param5b);
-        float param5c = Float.parseFloat(servoSpeedIndicator2.getText().toString());
+        float param5c = (servoSpeedSeekBar2.getProgress() / 10f);
         mode.setParam(5, 2, param5c);
     }
 
@@ -474,11 +466,11 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         dynSwitch.setShowText((boolean) mode.getParam(1));
 
         //Action threshold
-        int progAT = (int) Math.round( 100 * ( (float) mode.getParam(2) / (0.75 - 0.05)) );
+        int progAT = (int) ((float)mode.getParam(2) * 10f);
         actThreshSeekBar.setProgress(progAT);
 
         // Write delay
-        int progWD = (int) Math.round( 100 * ( (float) mode.getParam(3) / (10.0 - 1.0)) );
+        int progWD = (int) ((float)mode.getParam(3) * 10f);
         writeDelSeekBar.setProgress(progWD);
 
         // Grip depth
@@ -489,11 +481,11 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
         // Servo speed
         float[] progsSS = (float[]) mode.getParam(5);
-        int progSS = (int) Math.round(100 * ((float) progsSS[0] / (10.0 - 1.0)));
+        int progSS = (int) (progsSS[0] * 10f);
         servoSpeedSeekBar0.setProgress(progSS);
-        progSS = (int) Math.round(100 * ((float) progsSS[1] / (10.0 - 1.0)));
+        progSS = (int) (progsSS[1] * 10f);
         servoSpeedSeekBar1.setProgress(progSS);
-        progSS = (int) Math.round(100 * ((float) progsSS[2] / (10.0 - 1.0)));
+        progSS = (int) (progsSS[2] * 10f);
         servoSpeedSeekBar2.setProgress(progSS);
 
         // Send Arduino the new mode
@@ -515,7 +507,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     @Override
     protected void onStart() {
         super.onStart();
-        //setMode(myModeManager.getCurrentMode());
     }
 
     @Override
