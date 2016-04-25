@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
@@ -21,7 +22,6 @@ import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -55,6 +55,9 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     TextView connectedDeviceAddress;
 
     TextView currentModeLabel;
+
+    // Snackbar for button feedback
+    Snackbar snackbar;
 
 
     // ----- Hydra UI Elements -----
@@ -239,14 +242,20 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
             // Add new mode
             case R.id.addModeButton:
                 newHydraMode();
+                snackbar = Snackbar.make(findViewById(R.id.main_content),"Mode added.",Snackbar.LENGTH_LONG);
+                snackbar.show();
                 break;
             // Reset stored settings of current mode
             case R.id.resetModeButton:
                 setMode(myModeManager.getCurrentMode());
+                snackbar = Snackbar.make(findViewById(R.id.main_content),"Mode reset.",Snackbar.LENGTH_LONG);
+                snackbar.show();
                 break;
             // Save new settings to current mode
             case R.id.saveModeButton:
                 saveHydraMode();
+                snackbar = Snackbar.make(findViewById(R.id.main_content),"Mode saved.",Snackbar.LENGTH_LONG);
+                snackbar.show();
                 break;
 
             // Send acknowledgement to Ard to break grip if button is enabled
@@ -548,11 +557,8 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
                 // Show connected device
 
-                Toast.makeText(MainActivity.this,
-                        "Talking to\n" +
-                                "Name: " + name + "\n"
-                                + "Address: " + address,
-                        Toast.LENGTH_LONG).show();
+                snackbar = Snackbar.make(findViewById(R.id.main_content),"Connected to " + name,Snackbar.LENGTH_LONG);
+                snackbar.show();
 
                 connectedDeviceName.setText(name);
                 connectedDeviceAddress.setText(address);
@@ -569,9 +575,8 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
             // No bluetooth device
             else {
                 HydraSocket.writeSTART();
-                Toast.makeText(MainActivity.this,
-                        "No device connected.",
-                        Toast.LENGTH_LONG).show();
+                snackbar = Snackbar.make(findViewById(R.id.main_content),"No device connected.",Snackbar.LENGTH_LONG);
+                snackbar.show();
                 connectedDeviceName.setText("Not connected.");
                 connectedDeviceAddress.setText(null);
             }
