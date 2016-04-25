@@ -293,13 +293,13 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         switch (seekBar.getId()) {
 
             case (R.id.servoSpeedSeekBar0):
-                servoSpeedIndicator0.setText(Float.toString(((float)progressValue) / 10f));
+                servoSpeedIndicator0.setText(Float.toString(((float)progressValue + 10f) / 10f));
                 break;
             case (R.id.servoSpeedSeekBar1):
-                servoSpeedIndicator1.setText(Float.toString(((float)progressValue) / 10f));
+                servoSpeedIndicator1.setText(Float.toString(((float)progressValue + 10f) / 10f));
                 break;
             case (R.id.servoSpeedSeekBar2):
-                servoSpeedIndicator2.setText(Float.toString(((float)progressValue) / 10f));
+                servoSpeedIndicator2.setText(Float.toString(((float)progressValue + 10f) / 10f));
                 break;
             case (R.id.gripDepthSeekBar0):
                 gripDepthIndicator0.setText(progressValue + "%");
@@ -311,10 +311,10 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
                 gripDepthIndicator2.setText(progressValue + "%");
                 break;
             case (R.id.actThreshSeekBar):
-                actThreshIndicator.setText(progressValue + "%");
+                actThreshIndicator.setText(progressValue + 5 + "%");
                 break;
             case (R.id.writeDelSeekBar):
-                writeDelIndicator.setText(Float.toString(((float)progressValue) / 10f));
+                writeDelIndicator.setText(Float.toString(((float)progressValue +10f) / 10f));
                 break;
 
             default:
@@ -369,7 +369,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
                 // Convert progress bar value
                 float param2 = (float) actThreshSeekBar.getProgress() + 5f;
                 // String of float value
-                String param2Str = Float.toString(param2/10f);
+                String param2Str = Float.toString(param2/100f);
                 message = "2=" + param2Str + ";";
                 break;
 
