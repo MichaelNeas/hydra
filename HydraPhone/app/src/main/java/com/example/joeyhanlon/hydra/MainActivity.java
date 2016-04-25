@@ -7,7 +7,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
@@ -30,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     // Bluetooth activity code
     private static final int BT_CONNECT = 1;
 
+    private Toolbar toolbar;
+
     // Handles storing/setting of different modes
     ModeManager myModeManager;
 
@@ -49,6 +54,8 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     TextView connectedDeviceName;
     TextView connectedDeviceAddress;
 
+    TextView currentModeLabel;
+
 
     // ----- Hydra UI Elements -----
 
@@ -59,16 +66,13 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     ListView modesListView;
 
     // Text showing current mode
-    TextView currentModeText;
+    //TextView currentModeText;
 
     // Buttons to affect mode settings
     ImageButton saveModeButton, addModeButton, resetModeButton;
 
     // Buttons to interact with arm
-    ImageButton calButton, breakButton;
-
-    // Button for bluetooth activity
-    ImageButton btoothButton;
+    ImageButton breakButton;
 
     // --- /HYDRA CONTROL ---
 
@@ -116,15 +120,21 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         setContentView(R.layout.activity_main);
 
         // ----- MAIN WINDOW SETUP -----
+        toolbar = (Toolbar) findViewById(R.id.tool_bar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
         inputPane = (LinearLayout)findViewById(R.id.inputPane);
         inputField = (EditText)findViewById(R.id.input);
+
+        currentModeLabel = (TextView)findViewById(R.id.current_mode_label);
 
         // Bluetooth info display
         connectedDeviceName = (TextView)findViewById(R.id.connectedDeviceName);
         connectedDeviceAddress = (TextView)findViewById(R.id.connectedDeviceAddress);
 
         modesListView = (ListView)findViewById(R.id.modesListView);
-        currentModeText = (TextView)findViewById(R.id.currentModeText);
+        //currentModeText = (TextView)findViewById(R.id.currentModeText);
 
         speedCard = (CardView)findViewById(R.id.speedCard);
         servoSpeedSeekBar0 = (SeekBar)findViewById(R.id.servoSpeedSeekBar0);
@@ -170,12 +180,8 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         resetModeButton = (ImageButton) findViewById(R.id.resetModeButton);
         resetModeButton.setOnClickListener(this);
 
-        calButton = (ImageButton) findViewById(R.id.calButton);
-        calButton.setOnClickListener(this);
-        breakButton = (ImageButton) findViewById(R.id.breakButton);
-        breakButton.setOnClickListener(this);
-
-        btoothButton = (ImageButton) findViewById(R.id.btoothButton);
+        //breakButton = (ImageButton) findViewById(R.id.breakButton);
+        //breakButton.setOnClickListener(this);
 
         // Create ModeManager to store list of modes
         myModeManager = new ModeManager(this.getApplicationContext());
@@ -218,7 +224,9 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     // Mode selection
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        setMode(myModeManager.getMode(position));
+        HydraMode newMode = myModeManager.getMode(position);
+        setMode(newMode);
+        currentModeLabel.setText(newMode.getName());
     }
 
 
@@ -241,35 +249,46 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
                 saveHydraMode();
                 break;
 
-            // Start calibration activity
-            case R.id.calButton:
+            // Send acknowledgement to Ard to break grip if button is enabled
+            //case R.id.breakButton:
+
+                //break;
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case (R.id.action_calibrate):
+                // Calibrate activity
                 Intent calIntent = new Intent(this, CalActivity.class);
                 startActivity(calIntent);
                 break;
-            // Send acknowledgement to Ard to break grip if button is enabled
-            case R.id.breakButton:
-
+            case (R.id.action_btsettings):
+                // Close current activity, open bluetooth activity (essentially just reset the app)
+                Intent intent = getIntent();
+                finish();
+                startActivity(intent);
                 break;
-
-            // Start Bluetooth activity
-            case R.id.btoothButton:
-                Intent btIntent = new Intent(this, BluetoothSetupActivity.class);
-                startActivityForResult(btIntent, BT_CONNECT);
+            case (R.id.action_disconnect):
+                // I guess just close the app? Dunno
+                finish();
                 break;
         }
+
+        return super.onOptionsItemSelected(item);
     }
 
     // Seek bar settings
     @Override
     public void onProgressChanged (SeekBar seekBar,int progressValue, boolean b){
-
-        /*
-        speed 1 10
-        depth 0 100 %
-        thresh 5 75 %
-        write delay 0 to 10
-        */
-
 
         switch (seekBar.getId()) {
 
@@ -459,7 +478,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     // Sets current mode to mode (updates UI, sends message)
     private void setMode(HydraMode mode){
         myModeManager.setCurrentMode(mode);
-        currentModeText.setText(mode.getName());
+        //currentModeText.setText(mode.getName());
         
         // Update parameter UI stuff
         // Dynamic or Static

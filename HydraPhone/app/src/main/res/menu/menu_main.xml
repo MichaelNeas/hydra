@@ -4,8 +4,20 @@
     tools:context=".MainActivity">
 
     <item
-        android:id="@+id/action_calibrate"
-        android:title="@string/action_calibrate"
+    android:id="@+id/action_calibrate"
+    android:title="@string/action_calibrate"
+    android:orderInCategory="100"
+    app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_btsettings"
+        android:title="@string/action_btsettings"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_disconnect"
+        android:title="@string/action_disconnect"
         android:orderInCategory="100"
         app:showAsAction="never" />
 

@@ -2,6 +2,7 @@ package com.example.joeyhanlon.hydra;
 
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -64,10 +65,15 @@ public class ModeManager {
         public View getView(int position, View convertView, ViewGroup parent) {
             // Mode in the list
             HydraMode mode = modes.get(position);
+            // View
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.listview_mode, parent, false);
+            }
             // Text view to display mode name
-            TextView modeView = new TextView(getContext());
-            modeView.setText(mode.getName());
-            return modeView;
+            TextView modeName = (TextView) convertView.findViewById(R.id.mode_name);
+            modeName.setText(mode.getName());
+
+            return convertView;
         }
     }
 
