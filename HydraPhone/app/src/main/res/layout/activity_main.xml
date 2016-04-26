@@ -45,32 +45,39 @@
                     android:layout_height="match_parent"
                     android:id="@+id/hydraPanel"
                     android:layout_weight="3"
-                    android:padding="10dp">
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingBottom="10dp">
 
-                    <TextView
-                        android:id="@+id/connectedDeviceName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="[SelectedDev]"
-                        android:textColor="@color/colorPrimaryText"
-                        android:textSize="15sp" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:orientation="horizontal"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical">
 
-                    <TextView
-                        android:id="@+id/connectedDeviceAddress"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:text="MA:CA:DD:RE:SS"
-                        android:textColor="@color/colorSecondaryText"
-                        android:textSize="15sp"
-                        android:paddingTop="5dp"/>
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/connectionStatusIcon"/>
+
+                        <TextView
+                            android:id="@+id/connectedDeviceName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="[SelectedDev]"
+                            android:textColor="@color/colorPrimaryText"
+                            android:textSize="15sp"
+                            android:layout_marginLeft="5dp"/>
+
+                    </LinearLayout>
 
                     <LinearLayout
                         android:id="@+id/sendActionWindow"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:background="@drawable/gesture_window_bkrd"
-                        android:layout_weight="1"
+                        android:layout_weight="4"
                         android:gravity="center"
                         android:orientation="vertical">
 
@@ -168,10 +175,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:clickable="true"
-                            app:fabSize="normal"
+                            app:fabSize="mini"
                             android:layout_gravity="bottom|right"
-                            android:layout_marginBottom="10dp"
-                            android:layout_marginRight="10dp"
+                            android:layout_marginBottom="20dp"
+                            android:layout_marginRight="20dp"
                             android:src="@drawable/ic_add_white_24dp" />
 
                     </FrameLayout>

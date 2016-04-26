@@ -35,6 +35,11 @@ public class MemoryManager {
         return sharedPrefs.getAll();
     }
 
+    public void removeEntry(String key) {
+        editor.remove(key);
+        editor.apply();
+    }
+
     /*
     Map<String, ?> allEntries = sharedPrefs.getAll();
     for (Map.Entry<String, ?> entry : allEntries.entrySet()) {

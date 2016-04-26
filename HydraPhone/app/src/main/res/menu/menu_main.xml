@@ -16,8 +16,8 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_disconnect"
-        android:title="@string/action_disconnect"
+        android:id="@+id/action_disengage"
+        android:title="@string/action_disengage"
         android:orderInCategory="100"
         app:showAsAction="never" />
 

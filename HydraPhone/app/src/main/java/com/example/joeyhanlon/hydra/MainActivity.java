@@ -17,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
     // Handles storing/setting of different modes
     ModeManager myModeManager;
+    HydraMode defaultMode;
 
     // Phone memory storage manager
     MemoryManager myMemoryManager;
@@ -52,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
     // To display connected device info in main window
     TextView connectedDeviceName;
-    TextView connectedDeviceAddress;
+    ImageView connectionStatusIcon;
 
     TextView currentModeLabel;
 
@@ -72,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     //TextView currentModeText;
 
     // Buttons to affect mode settings
-    ImageButton saveModeButton, addModeButton, resetModeButton;
+    ImageButton saveModeButton, addModeButton, resetModeButton, deleteModeButton;
 
     // Buttons to interact with arm
     ImageButton breakButton;
@@ -134,10 +136,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
         // Bluetooth info display
         connectedDeviceName = (TextView)findViewById(R.id.connectedDeviceName);
-        connectedDeviceAddress = (TextView)findViewById(R.id.connectedDeviceAddress);
-
-        modesListView = (ListView)findViewById(R.id.modesListView);
-        //currentModeText = (TextView)findViewById(R.id.currentModeText);
+        connectionStatusIcon = (ImageView)findViewById(R.id.connectionStatusIcon);
 
         speedCard = (CardView)findViewById(R.id.speedCard);
         servoSpeedSeekBar0 = (SeekBar)findViewById(R.id.servoSpeedSeekBar0);
@@ -182,12 +181,16 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         saveModeButton.setOnClickListener(this);
         resetModeButton = (ImageButton) findViewById(R.id.resetModeButton);
         resetModeButton.setOnClickListener(this);
+        deleteModeButton = (ImageButton) findViewById(R.id.deleteModeButton);
+        deleteModeButton.setOnClickListener(this);
 
         //breakButton = (ImageButton) findViewById(R.id.breakButton);
         //breakButton.setOnClickListener(this);
 
         // Create ModeManager to store list of modes
         myModeManager = new ModeManager(this.getApplicationContext());
+
+        modesListView = (ListView)findViewById(R.id.modesListView);
 
         // Instantiate memory manager with activity context
         myMemoryManager = new MemoryManager(this.getApplicationContext());
@@ -199,7 +202,9 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         modesListView.setOnItemClickListener(this);
 
         // Default mode, always hard coded to ensure there is always a working mode (not in memory)
-        myModeManager.addNewMode("Default Grip", false, 0.5f, 5.0f, 100, 100, 100, 5.0f, 5.0f, 5.0f);
+        defaultMode = new HydraMode("Default Grip", false, 0.5f, 5.0f, 100, 100, 100, 5.0f, 5.0f, 5.0f);
+        myModeManager.addMode(defaultMode);
+        //myModeManager.addNewMode("Default Grip", false, 0.5f, 5.0f, 100, 100, 100, 5.0f, 5.0f, 5.0f);
 
         // retrieve map of all modes in memory
         modesInMemory = myMemoryManager.getAllFromMemory();
@@ -214,8 +219,9 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         }
 
         // Always have default grip selected initially
-        setMode(myModeManager.getMode(0));
 
+        setMode(myModeManager.getMode(0));
+        modesListView.setSelection(0);
 
         // ----------
 
@@ -229,7 +235,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         HydraMode newMode = myModeManager.getMode(position);
         setMode(newMode);
-        currentModeLabel.setText(newMode.getName());
     }
 
 
@@ -257,7 +262,9 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
                 snackbar = Snackbar.make(findViewById(R.id.main_content),"Mode saved.",Snackbar.LENGTH_LONG);
                 snackbar.show();
                 break;
-
+            case R.id.deleteModeButton:
+                deleteHydraMode();
+                break;
             // Send acknowledgement to Ard to break grip if button is enabled
             //case R.id.breakButton:
 
@@ -286,9 +293,8 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
                 finish();
                 startActivity(intent);
                 break;
-            case (R.id.action_disconnect):
-                // I guess just close the app? Dunno
-                finish();
+            case (R.id.action_disengage):
+                // Extend all servos, might need to be incorporated as a mode? Or just control directly
                 break;
         }
 
@@ -435,9 +441,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
                         mode.setName(inputString);
 
                         myMemoryManager.writeToMemory(mode.getName(), gson.toJson(mode));
-
-                        //commented out because if the device isnt connected to BT app crashes
-                        //setCurrentSettings(mode);
+                        setCurrentSettings(mode);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -455,6 +459,26 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         HydraMode mode = myModeManager.getCurrentMode();
         setCurrentSettings(mode);
         myMemoryManager.writeToMemory(mode.getName(), gson.toJson(mode));
+    }
+
+    private void deleteHydraMode() {
+        new AlertDialog.Builder(this)
+                .setIcon(R.drawable.ic_report_yellow_24dp)
+                .setTitle("Delete this mode?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        myMemoryManager.removeEntry(myModeManager.getCurrentMode().getName());
+                        myModeManager.delete(myModeManager.getCurrentMode());
+                        setMode(defaultMode);
+                        snackbar = Snackbar.make(findViewById(R.id.main_content),"Mode deleted.",Snackbar.LENGTH_LONG);
+                        snackbar.show();
+                    }
+
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 
     // Sets parameters of given mode to current user parameter settings
@@ -487,7 +511,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     // Sets current mode to mode (updates UI, sends message)
     private void setMode(HydraMode mode){
         myModeManager.setCurrentMode(mode);
-        //currentModeText.setText(mode.getName());
+        currentModeLabel.setText(mode.getName());
         
         // Update parameter UI stuff
         // Dynamic or Static
@@ -557,11 +581,11 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
                 // Show connected device
 
-                snackbar = Snackbar.make(findViewById(R.id.main_content),"Connected to " + name,Snackbar.LENGTH_LONG);
-                snackbar.show();
+                //snackbar = Snackbar.make(findViewById(R.id.main_content),"Connected to " + name,Snackbar.LENGTH_LONG);
+                //snackbar.show();
 
-                connectedDeviceName.setText(name);
-                connectedDeviceAddress.setText(address);
+                connectionStatusIcon.setImageResource(R.drawable.ic_check_circle_green_24dp);
+                connectedDeviceName.setText("Connected to " + name);
 
                 // Acknowledge the bluetooth connection to Arduino
                 HydraSocket.writeSTART();
@@ -575,10 +599,12 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
             // No bluetooth device
             else {
                 HydraSocket.writeSTART();
-                snackbar = Snackbar.make(findViewById(R.id.main_content),"No device connected.",Snackbar.LENGTH_LONG);
-                snackbar.show();
+
+                //snackbar = Snackbar.make(findViewById(R.id.main_content),"No device connected.",Snackbar.LENGTH_LONG);
+                //snackbar.show();
+
+                connectionStatusIcon.setImageResource(R.drawable.ic_report_yellow_24dp);
                 connectedDeviceName.setText("Not connected.");
-                connectedDeviceAddress.setText(null);
             }
         }
 

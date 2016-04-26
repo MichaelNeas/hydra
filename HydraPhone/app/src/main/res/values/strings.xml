@@ -4,7 +4,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="action_calibrate">Calibrate</string>
-    <string name="action_disconnect">Disconnect</string>
+    <string name="action_disengage">Disengage</string>
     <string name="action_btsettings">Bluetooth</string>
     <string name="title_activity_bluetooth">BluetoothActivity</string>
     <string name="title_activity_cal">Calibrate</string>

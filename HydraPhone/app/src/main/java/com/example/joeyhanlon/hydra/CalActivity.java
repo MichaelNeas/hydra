@@ -1,20 +1,21 @@
 package com.example.joeyhanlon.hydra;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.text.Html;
 import android.view.View;
 import android.widget.Button;
-
-import java.util.Objects;
+import android.widget.ImageButton;
 
 /**
  * Activity started when user presses calibrate button in MainActivity
  */
-public class CalActivity extends AppCompatActivity {
+public class CalActivity extends AppCompatActivity implements View.OnClickListener {
+
+    // Navigation
+    ImageButton backButton;
+
     Button calButton;
-    boolean calibrating;
     int calStage;           // Keeps track of step in calibration process
     int WAIT_TIME = 2000;   // Time to wait for Arduino to calibrate
 
@@ -23,10 +24,11 @@ public class CalActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cal);
 
-        calButton = (Button) findViewById(R.id.calButton);
+        backButton = (ImageButton) findViewById(R.id.backButton);
+        backButton.setOnClickListener(this);
 
-        CalButtonListener myCalListener = new CalButtonListener();
-        calButton.setOnClickListener(myCalListener);
+        calButton = (Button) findViewById(R.id.calButton);
+        calButton.setOnClickListener(this);
 
         // Stage 0 of calibration
         calStage = 0;
@@ -35,63 +37,68 @@ public class CalActivity extends AppCompatActivity {
 
     }
 
-    private class CalButtonListener implements Button.OnClickListener{
-        @Override
-        public void onClick(View v) {
-            switch (calStage){
-                case 0:
-                    // Start calibration
-                    HydraSocket.write("C;");
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case (R.id.backButton):
+                // To main activity
+                onBackPressed();
+                break;
 
-                    // Wait for Arduino to acknowledge calibration started
-                    waitForArd();
-
-                    // Enter stage 1
-                    calStage ++;
-                    calButton.setBackgroundResource(R.color.colorPrimary);
-                    calButton.setText("Press when RELAXed.");
-                    break;
-                case 1: // Stage 1 - Low threshold calibration
-                    // On press, send ACK
-                    HydraSocket.writeACK();
-
-                    // Wait for low calibration to finish
-                    waitForArd();
-
-                    // Enter stage 2
-                    calStage ++;
-                    calButton.setBackgroundResource(R.color.colorPrimary);
-                    calButton.setText("Press when FLEXed.");
-                    break;
-                case 2: // Stage 2 - High threshold calibration
-                    // On press, send ACK
-                    HydraSocket.writeACK();
-
-                    // Wait for high calibration to finish
-                    waitForArd();
-
-                    HydraSocket.writeACK();
-
-                    // Allow user to recalibrate if desired
-                    calStage = 0;
-                    calButton.setBackgroundResource(R.color.colorPrimary);
-                    calButton.setText("Re-calibrate.");
-                    break;
-            }
+            case (R.id.calButton):
+                calibrate();
+                break;
         }
+    }
+
+    private void calibrate() {
+
+        switch (calStage){
+            case 0:
+                // Start calibration
+                HydraSocket.write("C;");
+
+                // Wait for Arduino to acknowledge calibration started
+                waitForArd();
+
+                // Enter stage 1
+                calStage ++;
+                break;
+
+            case 1: // Stage 1 - Low threshold calibration
+                calButton.setText(Html.fromHtml("Press when <b>relaxed</b>."));
+                // On press, send ACK
+                HydraSocket.writeACK();
+
+                // Wait for low calibration to finish
+                waitForArd();
+
+                // Enter stage 2
+                calStage ++;
+                break;
+
+            case 2:
+                // Stage 2 - High threshold calibration
+                calButton.setText(Html.fromHtml("Press when <b>flexed</b>."));
+                // On press, send ACK
+                HydraSocket.writeACK();
+
+                // Wait for high calibration to finish
+                waitForArd();
+
+                HydraSocket.writeACK();
+
+                // Allow user to recalibrate if desired
+                calStage = 0;
+                calButton.setText("");
+                break;
+        }
+
     }
 
     // Exit CalActivity with back button
     @Override
     public void onBackPressed(){
-        // Only exit if calibration is not currently occurring
-        if (calStage == 0){
-            finish();
-        }
-        // If calibrating, disregard
-        else {
-            return;
-        }
+        finish();
     }
 
     // Delay for WAIT_TIME so that Arduino can process

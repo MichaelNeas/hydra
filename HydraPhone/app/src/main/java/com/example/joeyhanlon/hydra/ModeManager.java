@@ -95,5 +95,8 @@ public class ModeManager {
     public HydraMode getMode(int position) { return modes.get(position); }
 
     // Delete specified mode
-    public void delete(HydraMode mode){ modes.remove(mode); }
+    public void delete(HydraMode mode){
+        modes.remove(mode);
+        adapter.notifyDataSetChanged();
+    }
 }
