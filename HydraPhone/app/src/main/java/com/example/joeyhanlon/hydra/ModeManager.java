@@ -85,6 +85,9 @@ public class ModeManager {
     // To assist UI display of modes
     public ModesAdapter getAdapter(){ return adapter; }
 
+    // For wear sync
+    public ArrayList<HydraMode> getModeList() {return modes;}
+
     // Returns current Hydra mode
     public HydraMode getCurrentMode(){ return currentMode; }
 

@@ -25,6 +25,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.mariux.teleport.lib.TeleportClient;
 
 import java.util.Map;
 
@@ -45,6 +46,9 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     Map<String, ?> modesInMemory;
     // To parse java objects as [json] strings
     Gson gson;
+
+    // Data sync with wearable
+    TeleportClient mTeleportClient;
 
     // The functional application window. Used to mask it during BT init and such.
     LinearLayout inputPane;
@@ -204,7 +208,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         // Default mode, always hard coded to ensure there is always a working mode (not in memory)
         defaultMode = new HydraMode("Default Grip", false, 0.5f, 5.0f, 100, 100, 100, 5.0f, 5.0f, 5.0f);
         myModeManager.addMode(defaultMode);
-        //myModeManager.addNewMode("Default Grip", false, 0.5f, 5.0f, 100, 100, 100, 5.0f, 5.0f, 5.0f);
 
         // retrieve map of all modes in memory
         modesInMemory = myMemoryManager.getAllFromMemory();
@@ -218,15 +221,37 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
             }
         }
 
-        // Always have default grip selected initially
-
+        // Always have default grip selected initially (DOES NOT WORK VISUALLY FOR SOME REASON)
         setMode(myModeManager.getMode(0));
         modesListView.setSelection(0);
 
+
         // ----------
+
+        // Set up wearable data sync client with app context, connect in onStart()
+        // also begin sync from onStart
+        // Build a new GoogleApiClient
+        mTeleportClient = new TeleportClient(this);
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mTeleportClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mTeleportClient.disconnect();
+        HydraSocket.writeCLOSE();
+    }
+
+    public void syncDataItem() {
+        //Let's sync a String!
+        mTeleportClient.syncString("hello", "Hello, World!");
+    }
 
     // ----- MAIN WINDOW METHODS -----
 
@@ -236,7 +261,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         HydraMode newMode = myModeManager.getMode(position);
         setMode(newMode);
     }
-
 
     // Button implementation
     @Override
@@ -249,6 +273,9 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
                 newHydraMode();
                 snackbar = Snackbar.make(findViewById(R.id.main_content),"Mode added.",Snackbar.LENGTH_LONG);
                 snackbar.show();
+
+                syncDataItem();
+
                 break;
             // Reset stored settings of current mode
             case R.id.resetModeButton:
@@ -419,6 +446,15 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
 
     // ----- /MAIN WINDOW METHODS -----
 
+
+    // ----- ANDROID WEAR SYNC -----
+
+
+
+
+    // ----- /ANDROID WEAR SYNC -----
+
+
     // ----- MODE MANAGING METHODS -----
     private void newHydraMode(){
 
@@ -555,17 +591,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     }
     // ----- /BLUETOOTH COMM METHODS -----
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    protected void onDestroy() {
-        HydraSocket.writeCLOSE();
-        super.onDestroy();
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

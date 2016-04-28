@@ -137,6 +137,8 @@ public class BluetoothSetupActivity extends AppCompatActivity implements View.On
                     isConnecting = true;
                     BluetoothDevice device =
                             (BluetoothDevice) pairedDeviceArrayList.get(position);
+
+
                     Toast.makeText(BluetoothSetupActivity.this,
                             "Connecting...\n" + "Name: " + device.getName() + "\n"
                                     + "Address: " + device.getAddress(),

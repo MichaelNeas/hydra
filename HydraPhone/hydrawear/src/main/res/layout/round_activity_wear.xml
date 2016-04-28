@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.wearable.view.BoxInsetLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/colorPrimary"
+        android:elevation="1dp"
+        android:gravity="center_horizontal">
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/logo_sil_small"
+            android:elevation="2dp">
+        </ImageView>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/frame_layout"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:background="#FFFFFF"
+        app:layout_box="left|bottom|right">
+
+        <android.support.wearable.view.WearableListView
+            android:id="@+id/wearable_List"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:choiceMode="singleChoice"
+            android:scrollbars="none"
+            android:dividerHeight="0dp">
+        </android.support.wearable.view.WearableListView>
+
+    </RelativeLayout>
+</android.support.wearable.view.BoxInsetLayout>

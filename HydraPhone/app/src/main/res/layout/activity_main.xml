@@ -81,6 +81,16 @@
                         android:gravity="center"
                         android:orientation="vertical">
 
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="left"
+                            android:text="@string/current_mode_label"
+                            android:textColor="@color/colorPrimaryLight"
+                            android:textSize="15sp"
+                            android:paddingLeft="10dp"
+                            android:paddingTop="10dp"/>
+
                         <LinearLayout
                             android:id="@+id/btConnection"
                             android:layout_width="match_parent"
@@ -92,20 +102,11 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="left"
-                                android:text="@string/current_mode_label"
-                                android:textColor="@color/colorPrimaryLight"
-                                android:textSize="15sp"
-                                android:padding="10dp"/>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
                                 android:id="@+id/current_mode_label"
                                 android:layout_gravity="center"
                                 android:text="CURRENT MODE"
                                 android:textColor="#FFFFFF"
-                                android:textSize="22sp"
+                                android:textSize="26sp"
                                 android:paddingBottom="10dp"/>
 
                         </LinearLayout>
