@@ -33,7 +33,8 @@ void paramUpdate(int paramNum){
   Serial.println(lastbToothMsg);
 
   if (bToothMsg == lastbToothMsg){
-    // Do nothing if duplicate message
+    // Flush if duplicate message
+    bluetooth.flush();
     Serial.println("Duplicate message");
   }
   else {

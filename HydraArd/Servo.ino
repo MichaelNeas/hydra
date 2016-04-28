@@ -13,6 +13,8 @@ void setupServos(){
     // Attach servos to pins
     pinMode(servoPins[i], OUTPUT);
     servos[i].attach(servoPins[i]);
+
+    servos[i].writeMicroseconds(servoControl[i]);
   }
 }
 

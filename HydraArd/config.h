@@ -10,9 +10,9 @@ const int RX_PIN = 2;                             // Arduino pin for reading fro
 const int TX_PIN = 3;                             // Arduino pin for writing to Bluetooth
 
 const int SERV_START[numServos]                   // Servo starting position
-  = {1800, 1800, 1800};                           // {Index, Outer, Thumb}
+  = {1300, 1100, 1700};                           // {Outer, Index, Thumb}
 const int SERV_END[numServos]                     // Servo full extension position
-  = {600, 600, 2400};                             // {Index, Outer, Thumb}
+  = {600, 1600, 1000};                             // {Outer, Index, Thumb}
 
 const int DELAY_MIN = 100;                        // Minimum value for delay between writes to Servo's
 const int DELAY_MAX = 10000;                      // Maximum value for delay between writes to Servo's
