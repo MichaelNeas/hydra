@@ -178,14 +178,14 @@ public class BluetoothSetupActivity extends AppCompatActivity implements View.On
             case (R.id.buttonPair):
 
                 // bypass bluetooth screen, temporary for debugging
-                finish();
+                //finish();
 
                 // Open phone default bluetooth device menu
-                /*
+
                 Intent intentOpenBluetoothSettings = new Intent();
                 intentOpenBluetoothSettings.setAction(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
                 startActivity(intentOpenBluetoothSettings);
-                */
+
         }
     }
 

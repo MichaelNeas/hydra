@@ -15,9 +15,9 @@
     <string name="ACTTHRESH_TITLE">Action Threshold</string>
     <string name="WRITEDEL_TITLE">Write Delay</string>
 
-    <string name="SERVO0_LABEL">Thumb</string>
+    <string name="SERVO0_LABEL">Outer</string>
     <string name="SERVO1_LABEL">Index</string>
-    <string name="SERVO2_LABEL">Outer</string>
+    <string name="SERVO2_LABEL">Thumb</string>
 
     <string name="NEWMODE_TEXT">+</string>
     <string name="SAVEMODE_TEXT">Save...</string>

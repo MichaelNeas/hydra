@@ -45,6 +45,11 @@ public class WearableAdapter extends WearableListView.Adapter {
         return modeNames.size();
     }
 
+    public void updateListItems(ArrayList<String> listItems) {
+        modeNames = listItems;
+        this.notifyDataSetChanged();
+    }
+
     private static class ItemViewHolder extends WearableListView.ViewHolder {
         private CircledImageView mCircledImageView;
         private TextView mItemTextView;

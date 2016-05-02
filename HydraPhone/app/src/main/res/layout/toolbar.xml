@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="60dp"
     android:gravity="bottom"
-    android:minHeight="?attr/actionBarSize"
-    android:background="?attr/colorPrimary"
+    android:background="@color/colorPrimary"
     local:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     local:popupTheme="@style/ThemeOverlay.AppCompat.Light" >
 

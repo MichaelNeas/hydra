@@ -10,13 +10,6 @@
         android:label="@string/app_name"
         android:theme="@android:style/Theme.DeviceDefault" >
 
-        <service
-            android:name=".WearService">
-            <intent-filter>
-                <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
-            </intent-filter>
-        </service>
-
         <uses-library android:name="com.google.android.wearable" android:required="false" />
 
         <meta-data
@@ -32,6 +25,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".WearListenerService" >
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
+            </intent-filter>
+        </service>
 
     </application>
 

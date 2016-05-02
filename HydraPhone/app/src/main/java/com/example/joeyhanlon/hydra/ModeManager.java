@@ -94,6 +94,8 @@ public class ModeManager {
     // Sets the Hydra mode to be currently used
     public void setCurrentMode(HydraMode mode){ currentMode = mode; }
 
+    public void setCurrentMode(int index) { currentMode = modes.get(index); }
+
     // Gets mode pressed at given position in the list view
     public HydraMode getMode(int position) { return modes.get(position); }
 

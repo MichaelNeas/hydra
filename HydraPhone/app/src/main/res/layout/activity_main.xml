@@ -104,9 +104,9 @@
                                 android:layout_height="wrap_content"
                                 android:id="@+id/current_mode_label"
                                 android:layout_gravity="center"
-                                android:text="CURRENT MODE"
+                                android:text="[Select mode]"
                                 android:textColor="#FFFFFF"
-                                android:textSize="26sp"
+                                android:textSize="28sp"
                                 android:paddingBottom="10dp"/>
 
                         </LinearLayout>
@@ -220,6 +220,11 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:layout_margin="20dp"
                             android:gravity="center">
@@ -243,6 +248,15 @@
                                 android:textOff=""
                                 android:id="@+id/dynSwitch"/>
 
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/break_button"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/action_disengage"
+                            android:layout_gravity="center"
+                            android:layout_margin="10dp" />
 
                         </LinearLayout>
 

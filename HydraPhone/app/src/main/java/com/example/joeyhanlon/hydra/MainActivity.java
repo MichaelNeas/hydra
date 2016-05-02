@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -25,8 +26,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
-import com.mariux.teleport.lib.TeleportClient;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 
@@ -48,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     Gson gson;
 
     // Data sync with wearable
-    TeleportClient mTeleportClient;
+    ArrayList<HydraMode> modeArrayList;
 
     // The functional application window. Used to mask it during BT init and such.
     LinearLayout inputPane;
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     ImageButton saveModeButton, addModeButton, resetModeButton, deleteModeButton;
 
     // Buttons to interact with arm
-    ImageButton breakButton;
+    Button breakButton;
 
     // --- /HYDRA CONTROL ---
 
@@ -133,41 +134,44 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        inputPane = (LinearLayout)findViewById(R.id.inputPane);
-        inputField = (EditText)findViewById(R.id.input);
+        inputPane = (LinearLayout) findViewById(R.id.inputPane);
+        inputField = (EditText) findViewById(R.id.input);
 
-        currentModeLabel = (TextView)findViewById(R.id.current_mode_label);
+        currentModeLabel = (TextView) findViewById(R.id.current_mode_label);
 
         // Bluetooth info display
-        connectedDeviceName = (TextView)findViewById(R.id.connectedDeviceName);
-        connectionStatusIcon = (ImageView)findViewById(R.id.connectionStatusIcon);
+        connectedDeviceName = (TextView) findViewById(R.id.connectedDeviceName);
+        connectionStatusIcon = (ImageView) findViewById(R.id.connectionStatusIcon);
 
-        speedCard = (CardView)findViewById(R.id.speedCard);
-        servoSpeedSeekBar0 = (SeekBar)findViewById(R.id.servoSpeedSeekBar0);
-        servoSpeedSeekBar1 = (SeekBar)findViewById(R.id.servoSpeedSeekBar1);
-        servoSpeedSeekBar2 = (SeekBar)findViewById(R.id.servoSpeedSeekBar2);
+        speedCard = (CardView) findViewById(R.id.speedCard);
+        servoSpeedSeekBar0 = (SeekBar) findViewById(R.id.servoSpeedSeekBar0);
+        servoSpeedSeekBar1 = (SeekBar) findViewById(R.id.servoSpeedSeekBar1);
+        servoSpeedSeekBar2 = (SeekBar) findViewById(R.id.servoSpeedSeekBar2);
         servoSpeedSeekBar0.setMax(90);
         servoSpeedSeekBar1.setMax(90);
         servoSpeedSeekBar2.setMax(90);
-        servoSpeedIndicator0 = (TextView)findViewById(R.id.servoSpeedIndicator0);
-        servoSpeedIndicator1 = (TextView)findViewById(R.id.servoSpeedIndicator1);
-        servoSpeedIndicator2 = (TextView)findViewById(R.id.servoSpeedIndicator2);
+        servoSpeedIndicator0 = (TextView) findViewById(R.id.servoSpeedIndicator0);
+        servoSpeedIndicator1 = (TextView) findViewById(R.id.servoSpeedIndicator1);
+        servoSpeedIndicator2 = (TextView) findViewById(R.id.servoSpeedIndicator2);
         servoSpeedSeekBar0.setOnSeekBarChangeListener(this);
         servoSpeedSeekBar1.setOnSeekBarChangeListener(this);
         servoSpeedSeekBar2.setOnSeekBarChangeListener(this);
 
-        gripDepthSeekBar0 = (SeekBar)findViewById(R.id.gripDepthSeekBar0);
-        gripDepthSeekBar1 = (SeekBar)findViewById(R.id.gripDepthSeekBar1);
-        gripDepthSeekBar2 = (SeekBar)findViewById(R.id.gripDepthSeekBar2);
-        gripDepthIndicator0 = (TextView)findViewById(R.id.gripDepthIndicator0);
-        gripDepthIndicator1 = (TextView)findViewById(R.id.gripDepthIndicator1);
-        gripDepthIndicator2 = (TextView)findViewById(R.id.gripDepthIndicator2);
+        gripDepthSeekBar0 = (SeekBar) findViewById(R.id.gripDepthSeekBar0);
+        gripDepthSeekBar1 = (SeekBar) findViewById(R.id.gripDepthSeekBar1);
+        gripDepthSeekBar2 = (SeekBar) findViewById(R.id.gripDepthSeekBar2);
+        gripDepthIndicator0 = (TextView) findViewById(R.id.gripDepthIndicator0);
+        gripDepthIndicator1 = (TextView) findViewById(R.id.gripDepthIndicator1);
+        gripDepthIndicator2 = (TextView) findViewById(R.id.gripDepthIndicator2);
         gripDepthSeekBar0.setOnSeekBarChangeListener(this);
         gripDepthSeekBar1.setOnSeekBarChangeListener(this);
         gripDepthSeekBar2.setOnSeekBarChangeListener(this);
 
-        dynSwitch = (Switch)findViewById(R.id.dynSwitch);
+        dynSwitch = (Switch) findViewById(R.id.dynSwitch);
         dynSwitch.setOnCheckedChangeListener(this);
+
+        breakButton = (Button) findViewById(R.id.break_button);
+        breakButton.setOnClickListener(this);
 
         actThreshSeekBar = (SeekBar) findViewById(R.id.actThreshSeekBar);
         actThreshSeekBar.setMax(70);
@@ -194,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         // Create ModeManager to store list of modes
         myModeManager = new ModeManager(this.getApplicationContext());
 
-        modesListView = (ListView)findViewById(R.id.modesListView);
+        modesListView = (ListView) findViewById(R.id.modesListView);
 
         // Instantiate memory manager with activity context
         myMemoryManager = new MemoryManager(this.getApplicationContext());
@@ -206,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         modesListView.setOnItemClickListener(this);
 
         // Default mode, always hard coded to ensure there is always a working mode (not in memory)
-        defaultMode = new HydraMode("Default Grip", false, 0.5f, 5.0f, 100, 100, 100, 5.0f, 5.0f, 5.0f);
+        defaultMode = new HydraMode("Default Grip", false, 0.5f, 5.0f, 100, 100, 100, 7.0f, 7.0f, 7.0f);
         myModeManager.addMode(defaultMode);
 
         // retrieve map of all modes in memory
@@ -221,36 +225,27 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
             }
         }
 
+        modeArrayList = myModeManager.getModeList();
+
         // Always have default grip selected initially (DOES NOT WORK VISUALLY FOR SOME REASON)
-        setMode(myModeManager.getMode(0));
-        modesListView.setSelection(0);
+        //setMode(myModeManager.getMode(0));
+        //modesListView.setSelection(0);
 
 
         // ----------
 
-        // Set up wearable data sync client with app context, connect in onStart()
-        // also begin sync from onStart
-        // Build a new GoogleApiClient
-        mTeleportClient = new TeleportClient(this);
-
     }
+
 
     @Override
     protected void onStart() {
         super.onStart();
-        mTeleportClient.connect();
     }
+
 
     @Override
     protected void onStop() {
         super.onStop();
-        mTeleportClient.disconnect();
-        HydraSocket.writeCLOSE();
-    }
-
-    public void syncDataItem() {
-        //Let's sync a String!
-        mTeleportClient.syncString("hello", "Hello, World!");
     }
 
     // ----- MAIN WINDOW METHODS -----
@@ -273,9 +268,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
                 newHydraMode();
                 snackbar = Snackbar.make(findViewById(R.id.main_content),"Mode added.",Snackbar.LENGTH_LONG);
                 snackbar.show();
-
-                syncDataItem();
-
                 break;
             // Reset stored settings of current mode
             case R.id.resetModeButton:
@@ -292,10 +284,10 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
             case R.id.deleteModeButton:
                 deleteHydraMode();
                 break;
-            // Send acknowledgement to Ard to break grip if button is enabled
-            //case R.id.breakButton:
-
-                //break;
+            // Add new mode
+            case R.id.break_button:
+                HydraSocket.writeACK();
+                break;
         }
     }
 
@@ -311,17 +303,19 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         switch (item.getItemId()) {
             case (R.id.action_calibrate):
                 // Calibrate activity
-                Intent calIntent = new Intent(this, CalActivity.class);
-                startActivity(calIntent);
+                if (HydraSocket.isConnected()) {
+                    Intent calIntent = new Intent(this, CalActivity.class);
+                    startActivity(calIntent);
+                }
+                else {
+                    snackbar = Snackbar.make(findViewById(R.id.main_content),"Lost connection",Snackbar.LENGTH_LONG);
+                    snackbar.show();
+                }
                 break;
             case (R.id.action_btsettings):
                 // Close current activity, open bluetooth activity (essentially just reset the app)
-                Intent intent = getIntent();
-                finish();
-                startActivity(intent);
-                break;
-            case (R.id.action_disengage):
-                // Extend all servos, might need to be incorporated as a mode? Or just control directly
+                Intent btIntent = new Intent(this, BluetoothSetupActivity.class);
+                startActivityForResult(btIntent, BT_CONNECT);
                 break;
         }
 
@@ -437,9 +431,11 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     public void onCheckedChanged(CompoundButton sw, boolean isChecked) {
         if (isChecked) {
             sendArduinoMessage("1=D;");
+            breakButton.setVisibility(View.GONE);
         }
         else {
             sendArduinoMessage("1=S;");
+            breakButton.setVisibility(View.VISIBLE);
             // TODO: allow break grip button
         }
     }
@@ -520,7 +516,7 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
     // Sets parameters of given mode to current user parameter settings
     private void setCurrentSettings(HydraMode mode){
         // Dynamic or Static
-        mode.setParam(1, dynSwitch.getShowText());
+        mode.setParam(1, dynSwitch.isChecked());
 
         // Action threshold
         float param2 = (actThreshSeekBar.getProgress() / 10f);
@@ -552,6 +548,14 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
         // Update parameter UI stuff
         // Dynamic or Static
         dynSwitch.setShowText((boolean) mode.getParam(1));
+        if ((boolean)mode.getParam(1) == true) {
+            dynSwitch.setChecked(true);
+            breakButton.setVisibility(View.GONE);
+        }
+        else {
+            dynSwitch.setChecked(false);
+            breakButton.setVisibility(View.VISIBLE);
+        }
 
         //Action threshold
         int progAT = (int) ((float)mode.getParam(2) * 10f);
@@ -623,7 +627,6 @@ public class MainActivity extends AppCompatActivity implements ListView.OnItemCl
             }
             // No bluetooth device
             else {
-                HydraSocket.writeSTART();
 
                 //snackbar = Snackbar.make(findViewById(R.id.main_content),"No device connected.",Snackbar.LENGTH_LONG);
                 //snackbar.show();
