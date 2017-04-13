@@ -1,9 +1,9 @@
 ## Hydra
 <h3>Senior Project - 3D Printed Elbow-Down Prosthetic</h3>
 
-##We won 1st place at UCONN Senior Design!!!!!!!!!
+## We won 1st place at UCONN Senior Design!!!!!!!!!
 
-##Features
+## Features
 <ul>
   <li>Customizable Solidworks files aimed for scalability and reprintability.</li>
   <li>Intelligent Ardunio Servo Control</li>
